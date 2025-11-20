@@ -636,6 +636,12 @@ namespace LoneEftDmaRadar
         /// </summary>
         [JsonPropertyName("espScreenHeight")]
         public int EspScreenHeight { get; set; } = 0;
+
+        /// <summary>
+        /// ESP Max FPS (0 = VSync/Unlimited).
+        /// </summary>
+        [JsonPropertyName("espMaxFPS")]
+        public int EspMaxFPS { get; set; } = 0;
     }
 
     public sealed class LootConfig

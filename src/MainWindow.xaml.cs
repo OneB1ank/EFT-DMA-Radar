@@ -31,6 +31,7 @@ using LoneEftDmaRadar.UI.Skia;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Input;
 using LoneEftDmaRadar.UI.ESP;
+using LoneEftDmaRadar.UI.Misc;
 
 namespace LoneEftDmaRadar
 {
@@ -59,9 +60,15 @@ namespace LoneEftDmaRadar
             ESPManager.ToggleESP();
         }
 
+        private void MenuDebugLogger_Click(object sender, RoutedEventArgs e)
+        {
+            DebugLogger.Toggle();
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             ESPManager.CloseESP();
+            DebugLogger.Close();
             base.OnClosed(e);
         }
 

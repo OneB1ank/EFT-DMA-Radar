@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LoneEftDmaRadar.Misc;
+using LoneEftDmaRadar.Tarkov.GameWorld;
 using LoneEftDmaRadar.Tarkov.GameWorld.Exits;
 using LoneEftDmaRadar.Tarkov.GameWorld.Loot;
 using LoneEftDmaRadar.Tarkov.GameWorld.Player;
@@ -26,6 +27,8 @@ namespace LoneEftDmaRadar.UI.ESP
         private readonly System.Diagnostics.Stopwatch _fpsSw = new();
         private int _fpsCounter;
         private int _fps;
+        private readonly System.Diagnostics.Stopwatch _frameTimeSw = new();
+        private double _lastFrameTime;
         
         // Cached Fonts/Paints
         private readonly SKFont _textFont;
@@ -38,12 +41,9 @@ namespace LoneEftDmaRadar.UI.ESP
         private readonly SKPaint _lootTextPaint;
         private readonly SKPaint _crosshairPaint;
 
-        // Camera matrices for WorldToScreen conversion
-        private Vector3 _forward;
-        private Vector3 _right;
-        private Vector3 _up;
         private Vector3 _camPos;
         private bool _isFullscreen;
+        private readonly CameraManager _cameraManager = new();
 
         /// <summary>
         /// LocalPlayer (who is running Radar) 'Player' object.
@@ -98,6 +98,7 @@ namespace LoneEftDmaRadar.UI.ESP
         public ESPWindow()
         {
             InitializeComponent();
+            CameraManager.TryInitialize();
             
             // Initial sizes
             this.Width = 400;
@@ -167,6 +168,7 @@ namespace LoneEftDmaRadar.UI.ESP
             };
 
             _fpsSw.Start();
+            _frameTimeSw.Start();
             
             // Use CompositionTarget.Rendering for smoother 60fps (or refresh rate) loop
             CompositionTarget.Rendering += OnRendering;
@@ -174,6 +176,18 @@ namespace LoneEftDmaRadar.UI.ESP
 
         private void OnRendering(object sender, EventArgs e)
         {
+            int maxFPS = App.Config.UI.EspMaxFPS;
+            if (maxFPS > 0)
+            {
+                double targetFrameTime = 1000.0 / maxFPS;
+                double elapsed = _frameTimeSw.Elapsed.TotalMilliseconds - _lastFrameTime;
+                
+                if (elapsed < targetFrameTime)
+                    return;
+                
+                _lastFrameTime = _frameTimeSw.Elapsed.TotalMilliseconds;
+            }
+            
             RefreshESP();
         }
 
@@ -223,7 +237,8 @@ namespace LoneEftDmaRadar.UI.ESP
                     }
                     else
                     {
-                        UpdateMatrix(localPlayer);
+                        _cameraManager.Update(localPlayer);
+                        UpdateCameraPositionFromMatrix();
 
                         ApplyResolutionOverrideIfNeeded();
 
@@ -266,6 +281,8 @@ namespace LoneEftDmaRadar.UI.ESP
                         {
                             DrawCrosshair(canvas, e.Info.Width, e.Info.Height);
                         }
+
+                        DrawFPS(canvas, e.Info.Width, e.Info.Height);
                     }
                 }
             }
@@ -280,13 +297,17 @@ namespace LoneEftDmaRadar.UI.ESP
             var lootItems = Memory.Game?.Loot?.FilteredLoot;
             if (lootItems is null) return;
 
+            var viewMatrix = _cameraManager.ViewMatrix;
+            var forward = new Vector3(viewMatrix.M13, viewMatrix.M23, viewMatrix.M33);
+
             foreach (var item in lootItems)
             {
                 if (WorldToScreen2(item.Position, out var screen, screenWidth, screenHeight))
                 {
-                     // Check if item is in center cone of vision (approx 15 degrees)
                      var dirToItem = Vector3.Normalize(item.Position - _camPos);
-                     var angle = MathF.Acos(Vector3.Dot(_forward, dirToItem)) * (180f / MathF.PI);
+                     var dot = Vector3.Dot(forward, dirToItem);
+                     dot = Math.Clamp(dot, -1f, 1f);
+                     var angle = MathF.Acos(dot) * (180f / MathF.PI);
                      
                      bool coneEnabled = App.Config.UI.EspLootConeEnabled && App.Config.UI.EspLootConeAngle > 0f;
                      bool inCone = !coneEnabled || angle <= App.Config.UI.EspLootConeAngle;
@@ -490,84 +511,54 @@ namespace LoneEftDmaRadar.UI.ESP
             canvas.DrawLine(centerX, centerY - length, centerX, centerY + length, _crosshairPaint);
         }
 
+        private void DrawFPS(SKCanvas canvas, float width, float height)
+        {
+            var fpsText = $"FPS: {_fps}";
+   
+            using var paint = new SKPaint
+            {
+                Color = SKColors.White,
+                IsAntialias = true,
+                TextSize = 8,
+                Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyle.Bold)
+            };
+            
+            canvas.DrawText(fpsText, 10, 25, paint);
+        }
+
         #endregion
 
         #region WorldToScreen Conversion
 
-        private void UpdateMatrix(LocalPlayer lp)
+        private void UpdateCameraPositionFromMatrix()
         {
-            float yaw = lp.Rotation.X * (MathF.PI / 180f);   // horizontal
-            float pitch = lp.Rotation.Y * (MathF.PI / 180f);   // vertical
-
-            float cy = MathF.Cos(yaw);
-            float sy = MathF.Sin(yaw);
-            float cp = MathF.Cos(pitch);
-            float sp = MathF.Sin(pitch);
-
-            _forward = new Vector3(
-                sy * cp,   // X
-               -sp,        // Y (up/down tilt)
-                cy * cp    // Z
-            );
-            _forward = Vector3.Normalize(_forward);
-
-            _right = new Vector3(cy, 0f, -sy);
-            _right = Vector3.Normalize(_right);
-
-            _up = Vector3.Normalize(Vector3.Cross(_right, _forward));
-
-            _up = -_up; // Invert up for screen coords
-
-            // Dynamic Camera Height based on Pose
-            // Stand = 1.65, Crouch ~1.0, Prone ~0.3
-            // We'd need to read the actual pose from memory for accuracy
-            // For now, let's assume standing/crouch average or use a fixed height relative to head bone if available
-            
-            var headPos = lp.GetBonePos(Bones.HumanHead);
-            if (headPos != Vector3.Zero)
-            {
-                _camPos = headPos + new Vector3(0, 0.10f, 0); // Slightly above/in-front of head bone
-            }
-            else
-            {
-                _camPos = lp.Position + new Vector3(0, 1.65f, 0); // Fallback
-            }
+            var viewMatrix = _cameraManager.ViewMatrix;
+            _camPos = new Vector3(viewMatrix.M14, viewMatrix.M24, viewMatrix.M34);
         }
 
         private bool WorldToScreen2(in Vector3 world, out SKPoint scr, float screenWidth, float screenHeight)
         {
             scr = default;
 
-            var dir = world - _camPos;
+            var viewMatrix = _cameraManager.ViewMatrix;
+            
+            var worldPos = new Vector4(world.X, world.Y, world.Z, 1f);
+            var clipCoords = Vector4.Transform(worldPos, viewMatrix);
 
-            float dz = Vector3.Dot(dir, _forward);
-            if (dz <= 0.01f) // Clip behind camera
+            if (clipCoords.W < 0.1f)
                 return false;
 
-            float dx = Vector3.Dot(dir, _right);
-            float dy = Vector3.Dot(dir, _up);
+            var ndc = new Vector3(
+                clipCoords.X / clipCoords.W,
+                clipCoords.Y / clipCoords.W,
+                clipCoords.Z / clipCoords.W
+            );
 
-            // Perspective divide
-            // Standard Vertical FOV in Tarkov is approx 50-55 degrees at default
-            // If things are drifting when turning, the FOV is likely wrong.
-            // Higher FOV = smaller objects, Less drift at edges
-            // Lower FOV = larger objects, More drift at edges
-            float verticalFOV = Math.Clamp(App.Config.UI.FOV, 50f, 75f);
-            
-            float focalLength = 1.0f / MathF.Tan(verticalFOV * 0.5f * (MathF.PI / 180f));
-            
-            float nx = (dx / dz) * focalLength;
-            float ny = (dy / dz) * focalLength;
+            if (ndc.Z < 0f || ndc.Z > 1f)
+                return false;
 
-            // Aspect ratio correction for X
-            float aspectRatio = screenWidth / screenHeight;
-            nx /= aspectRatio;
-
-            float w = screenWidth;
-            float h = screenHeight;
-
-            scr.X = w * 0.5f + nx * (w * 0.5f);
-            scr.Y = h * 0.5f - ny * (h * 0.5f);
+            scr.X = (ndc.X + 1f) * 0.5f * screenWidth;
+            scr.Y = (1f - ndc.Y) * 0.5f * screenHeight;
 
             return true;
         }

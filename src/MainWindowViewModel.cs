@@ -28,6 +28,7 @@ SOFTWARE.
 
 using LoneEftDmaRadar.UI.Hotkeys;
 using LoneEftDmaRadar.UI.Radar.ViewModels;
+using LoneEftDmaRadar.UI.ESP;
 
 namespace LoneEftDmaRadar
 {
@@ -90,6 +91,18 @@ namespace LoneEftDmaRadar
             toggleShowFood.HotkeyStateChanged += ToggleShowFood_HotkeyStateChanged;
             var toggleShowMeds = new HotkeyActionController("Toggle Show Meds");
             toggleShowMeds.HotkeyStateChanged += ToggleShowMeds_HotkeyStateChanged;
+            
+            var toggleESP = new HotkeyActionController("Toggle ESP Overlay");
+            toggleESP.HotkeyStateChanged += ToggleESP_HotkeyStateChanged;
+            var toggleESPPlayers = new HotkeyActionController("Toggle ESP Players");
+            toggleESPPlayers.HotkeyStateChanged += ToggleESPPlayers_HotkeyStateChanged;
+            var toggleESPScavs = new HotkeyActionController("Toggle ESP Scavs/AI");
+            toggleESPScavs.HotkeyStateChanged += ToggleESPScavs_HotkeyStateChanged;
+            var toggleESPLoot = new HotkeyActionController("Toggle ESP Loot");
+            toggleESPLoot.HotkeyStateChanged += ToggleESPLoot_HotkeyStateChanged;
+            var toggleESPExfils = new HotkeyActionController("Toggle ESP Exfils");
+            toggleESPExfils.HotkeyStateChanged += ToggleESPExfils_HotkeyStateChanged;
+            
             // Add to Static Collection:
             HotkeyAction.RegisterController(zoomIn);
             HotkeyAction.RegisterController(zoomOut);
@@ -99,6 +112,11 @@ namespace LoneEftDmaRadar
             HotkeyAction.RegisterController(toggleInfo);
             HotkeyAction.RegisterController(toggleShowFood);
             HotkeyAction.RegisterController(toggleShowMeds);
+            HotkeyAction.RegisterController(toggleESP);
+            HotkeyAction.RegisterController(toggleESPPlayers);
+            HotkeyAction.RegisterController(toggleESPScavs);
+            HotkeyAction.RegisterController(toggleESPLoot);
+            HotkeyAction.RegisterController(toggleESPExfils);
         }
 
         private void ToggleAimviewWidget_HotkeyStateChanged(object sender, HotkeyEventArgs e)
@@ -149,6 +167,52 @@ namespace LoneEftDmaRadar
         private void ZoomIn_HotkeyDelayElapsed(object sender, EventArgs e)
         {
             _parent.Radar?.ViewModel?.ZoomIn(HK_ZOOMTICKAMT);
+        }
+
+        private void ToggleESP_HotkeyStateChanged(object sender, HotkeyEventArgs e)
+        {
+            if (e.State)
+            {
+                ESPManager.ToggleESP();
+            }
+        }
+
+        private void ToggleESPPlayers_HotkeyStateChanged(object sender, HotkeyEventArgs e)
+        {
+            if (e.State)
+            {
+                bool newState = !App.Config.UI.EspPlayerSkeletons;
+                App.Config.UI.EspPlayerSkeletons = newState;
+                App.Config.UI.EspPlayerBoxes = newState;
+                App.Config.UI.EspPlayerNames = newState;
+            }
+        }
+
+        private void ToggleESPScavs_HotkeyStateChanged(object sender, HotkeyEventArgs e)
+        {
+            if (e.State)
+            {
+                bool newState = !App.Config.UI.EspAISkeletons;
+                App.Config.UI.EspAISkeletons = newState;
+                App.Config.UI.EspAIBoxes = newState;
+                App.Config.UI.EspAINames = newState;
+            }
+        }
+
+        private void ToggleESPLoot_HotkeyStateChanged(object sender, HotkeyEventArgs e)
+        {
+            if (e.State)
+            {
+                App.Config.UI.EspLoot = !App.Config.UI.EspLoot;
+            }
+        }
+
+        private void ToggleESPExfils_HotkeyStateChanged(object sender, HotkeyEventArgs e)
+        {
+            if (e.State)
+            {
+                App.Config.UI.EspExfils = !App.Config.UI.EspExfils;
+            }
         }
 
         #endregion

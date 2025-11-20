@@ -133,6 +133,8 @@ namespace LoneEftDmaRadar
                 using var loading = new LoadingWindow();
                 await ConfigureProgramAsync(loadingWindow: loading);
 
+                //DebugLogger.Toggle(); // Auto-open debug console
+
                 MainWindow = new MainWindow();
                 MainWindow.Show();
             }

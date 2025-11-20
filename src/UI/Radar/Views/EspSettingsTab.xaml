@@ -106,25 +106,38 @@
                 </StackPanel>
             </GroupBox>
 
-            <!-- FOV Settings -->
+            <!-- Camera Info -->
             <GroupBox Header="Camera / FOV"
                       Margin="0,0,0,12">
-                <WrapPanel>
-                    <TextBlock Text="Manual FOV"
-                               VerticalAlignment="Center"
-                               ToolTip="Vertical Field of View. Set this to match your in-game FOV setting for accurate ESP alignment." />
-                    <Slider x:Name="FOVSlider"
-                            Width="150"
-                            Margin="8,0"
-                            Minimum="50"
-                            Maximum="75"
-                            SmallChange="1"
-                            LargeChange="5"
-                            Value="{Binding FOV, Mode=TwoWay}" />
-                    <TextBlock Text="{Binding Value, ElementName=FOVSlider, StringFormat=F0}"
-                               VerticalAlignment="Center"
-                               Margin="8,0,0,0" />
-                </WrapPanel>
+                <TextBlock Text="Camera FOV is now automatically detected from game memory!"
+                           VerticalAlignment="Center"
+                           FontStyle="Italic"
+                           Foreground="LightGreen" />
+            </GroupBox>
+
+            <!-- Performance Settings -->
+            <GroupBox Header="Performance"
+                      Margin="0,0,0,12">
+                <StackPanel>
+                    <WrapPanel Margin="0,0,0,8">
+                        <TextBlock Text="Max FPS (0 = VSync/Unlimited):"
+                                   VerticalAlignment="Center"
+                                   Width="200" />
+                        <TextBox Text="{Binding EspMaxFPS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="80"
+                                 Margin="8,0" />
+                        <TextBlock Text="Recommended: 60-144"
+                                   VerticalAlignment="Center"
+                                   Foreground="Gray"
+                                   FontSize="10"
+                                   Margin="8,0" />
+                    </WrapPanel>
+                    <TextBlock Text="Note: Lower FPS = Better performance. Set to 0 for VSync (monitor refresh rate)."
+                               TextWrapping="Wrap"
+                               Foreground="Gray"
+                               FontSize="10"
+                               Margin="0,0,0,4" />
+                </StackPanel>
             </GroupBox>
 
         </StackPanel>

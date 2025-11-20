@@ -238,6 +238,19 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public int EspMaxFPS
+        {
+            get => App.Config.UI.EspMaxFPS;
+            set
+            {
+                if (App.Config.UI.EspMaxFPS != value)
+                {
+                    App.Config.UI.EspMaxFPS = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public float FOV
         {
             get => App.Config.UI.FOV;
