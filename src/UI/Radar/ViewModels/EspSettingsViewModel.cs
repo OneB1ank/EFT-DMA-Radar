@@ -142,6 +142,19 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public bool EspFactionColors
+        {
+            get => App.Config.UI.EspFactionColors;
+            set
+            {
+                if (App.Config.UI.EspFactionColors != value)
+                {
+                    App.Config.UI.EspFactionColors = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool EspPlayerFaction
         {
             get => App.Config.UI.EspPlayerFaction;

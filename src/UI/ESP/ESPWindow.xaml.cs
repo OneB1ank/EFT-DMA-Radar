@@ -534,13 +534,20 @@ namespace LoneEftDmaRadar.UI.ESP
 
             // Draw head marker
             bool drawHeadCircle = isAI ? App.Config.UI.EspHeadCircleAI : App.Config.UI.EspHeadCirclePlayers;
-            if (drawHeadCircle && TryProject(player.GetBonePos(Bones.HumanHead), screenWidth, screenHeight, out var headScreen))
+            if (drawHeadCircle)
             {
-                float baseRadius = 4f;
-                float fov = Math.Max(1f, _cameraManager.FOV);
-                float scale = 50f / fov; // keeps size tighter at higher FOV values
-                float radius = MathF.Max(2f, baseRadius * scale);
-                ctx.DrawCircle(ToRaw(headScreen), radius, color, filled: false);
+                var head = player.GetBonePos(Bones.HumanHead);
+                var headTop = head;
+                headTop.Y += 4f; // approximate head height in world space
+
+                if (TryProject(head, screenWidth, screenHeight, out var headScreen) &&
+                    TryProject(headTop, screenWidth, screenHeight, out var headTopScreen))
+                {
+                    var dx = headTopScreen.X - headScreen.X;
+                    var dy = headTopScreen.Y - headScreen.Y;
+                    float radius = MathF.Max(2f, MathF.Sqrt(dx * dx + dy * dy));
+                    ctx.DrawCircle(ToRaw(headScreen), radius, color, filled: false);
+                }
             }
 
             if (drawLabel)
