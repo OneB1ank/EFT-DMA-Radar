@@ -21,40 +21,40 @@
         </Grid.ColumnDefinitions>
         <TabControl Grid.ColumnSpan="2">
             <TabItem Header="Radar"
-                     x:Name="RadarTab" Margin="0,-1,0,1">
+                     x:Name="RadarTab">
                 <tabs:RadarTab x:Name="Radar" />
             </TabItem>
 
-            <TabItem Header="Settings" Margin="0,-1,0,1">
+            <TabItem Header="Settings">
                 <TabControl Margin="4">
-                    <TabItem Header="Radar" Margin="0,-1,16,1">
+                    <TabItem Header="Radar">
                         <tabs:SettingsTab x:Name="Settings" />
                     </TabItem>
-                    <TabItem Header="ESP Fuser" Height="34" Margin="0,-1,16,0" VerticalAlignment="Top">
+                    <TabItem Header="ESP Fuser">
                         <tabs:EspSettingsTab x:Name="EspSettings" />
                     </TabItem>
-                    <TabItem Header="Loot Filters" Height="34" Margin="0,-1,16,0" VerticalAlignment="Top">
+                    <TabItem Header="Loot Filters">
                         <tabs:LootFiltersTab x:Name="LootFilters"/>
                     </TabItem>
-                    <TabItem Header="Makcu Aimbot" Height="34" Margin="0,-1,16,0" VerticalAlignment="Top">
+                    <TabItem Header="Makcu Aimbot">
                         <tabs:MakcuTab x:Name="Makcu" />
                     </TabItem>
-                    <TabItem Header="MemWrites" Width="117" Height="34" Margin="0,-1,0,0" VerticalAlignment="Top">
+                    <TabItem Header="MemWrites" Width="117">
                         <tabs:MemWritesTab x:Name="MemWrites" />
                     </TabItem>
                 </TabControl>
             </TabItem>
 
-            <TabItem Header="Web Radar" Margin="0,-1,0,1">
+            <TabItem Header="Web Radar">
                 <tabs:WebRadarTab x:Name="WebRadar" />
             </TabItem>
-            <TabItem Header="Player History" Margin="0,-1,0,1">
+            <TabItem Header="Player History">
                 <tabs:PlayerHistoryTab x:Name="PlayerHistory"/>
             </TabItem>
-            <TabItem Header="Player Watchlist" Margin="0,-1,0,1">
+            <TabItem Header="Player Watchlist">
                 <tabs:PlayerWatchlistTab x:Name="PlayerWatchlist"/>
             </TabItem>
-            <TabItem Header="Debug" Margin="0,-1,0,1">
+            <TabItem Header="Debug">
                 <tabs:DebugTab x:Name="DebugTab" />
             </TabItem>
         </TabControl>

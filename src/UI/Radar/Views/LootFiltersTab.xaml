@@ -34,7 +34,7 @@
             <!-- main grid -->
         </Grid.RowDefinitions>
 
-        <!-- Row 0: Filter selector -->
+        <!-- Row 0: Filter selector -->
         <StackPanel Orientation="Horizontal"
                     Margin="5"
                     Grid.Row="0">
@@ -57,7 +57,7 @@
                     Command="{Binding DeleteFilterCommand}" />
         </StackPanel>
 
-        <!-- Row 1: Add new entry -->
+        <!-- Row 1: Add new entry -->
         <StackPanel Orientation="Horizontal"
                     Margin="5"
                     Grid.Row="1">
@@ -83,7 +83,7 @@
                     VerticalAlignment="Center" />
         </StackPanel>
 
-        <!-- Row 2: Entries grid with inline color‐picker -->
+        <!-- Row 2: Entries grid with inline color‐picker -->
         <DataGrid ItemsSource="{Binding Entries}"
                   AutoGenerateColumns="False"
                   Grid.Row="2"
