@@ -42,10 +42,10 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld
             {
                 DebugLogger.LogDebug("CameraManager: Starting initialization...");
                 
-                var addr = Memory.ReadPtr(Memory.UnityBase + UnitySDK.UnityOffsets.CameraObjectManager, false);
+                var addr = Memory.ReadPtr(Memory.UnityBase + UnitySDK.UnityOffsets.AllCameras, false);
                 if (addr == 0)
                 {
-                    DebugLogger.LogWarning("CameraManager: Failed to read CameraObjectManager address");
+                    DebugLogger.LogWarning("CameraManager: Failed to read AllCameras address");
                     return false;
                 }
 
@@ -211,25 +211,25 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld
                 if (useOpticCamera)
                 {
                     // When scoped with PiP optic, use optic camera's ViewMatrix/FOV/Aspect/Zoom
-                    ViewMatrix = Memory.ReadValue<Matrix4x4>(_opticCamera + UnitySDK.UnityOffsets.Camera.ViewMatrix, false);
-                    FOV = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera.FOV, false);
-                    AspectRatio = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera.AspectRatio, false);
-                    ZoomLevel = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera.ZoomLevel, false);
+                    ViewMatrix = Memory.ReadValue<Matrix4x4>(_opticCamera + UnitySDK.UnityOffsets.Camera_ViewMatrixOffset, false);
+                    FOV = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera_FOVOffset, false);
+                    AspectRatio = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera_AspectRatioOffset, false);
+                    ZoomLevel = Memory.ReadValue<float>(_opticCamera + UnitySDK.UnityOffsets.Camera_ZoomLevelOffset, false);
 
                     _updateCounter++;
                     if (_updateCounter % 300 == 0)
                     {
-                        float fpsFov = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera.FOV, false);
+                        float fpsFov = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera_FOVOffset, false);
                         DebugLogger.LogDebug($"CameraManager: SCOPED (PiP) - ViewMatrix/FOV from Optic, FPS_FOV={fpsFov:F2}, AspectRatio={AspectRatio:F3}, Zoom={ZoomLevel:F2}x");
                     }
                 }
                 else
                 {
                     // Regular FPS camera for hipfire and iron sights
-                    ViewMatrix = Memory.ReadValue<Matrix4x4>(_fpsCamera + UnitySDK.UnityOffsets.Camera.ViewMatrix, false);
-                    FOV = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera.FOV, false);
-                    AspectRatio = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera.AspectRatio, false);
-                    ZoomLevel = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera.ZoomLevel, false);
+                    ViewMatrix = Memory.ReadValue<Matrix4x4>(_fpsCamera + UnitySDK.UnityOffsets.Camera_ViewMatrixOffset, false);
+                    FOV = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera_FOVOffset, false);
+                    AspectRatio = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera_AspectRatioOffset, false);
+                    ZoomLevel = Memory.ReadValue<float>(_fpsCamera + UnitySDK.UnityOffsets.Camera_ZoomLevelOffset, false);
 
                     _updateCounter++;
                     if (_updateCounter % 300 == 0)

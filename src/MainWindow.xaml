@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:LoneEftDmaRadar"
         xmlns:tabs="clr-namespace:LoneEftDmaRadar.UI.Radar.Views"
         mc:Ignorable="d"
-        Title="Lone EFT DMA Radar"
+        Title="Moulman EFT DMA Radar"
         Width="1280" Height="720"
         Icon="/lone-icon.ico">
     <d:Window.DataContext>
@@ -15,13 +15,17 @@
                       IsDesignTimeCreatable="False"/>
     </d:Window.DataContext>
     <Grid>
-        <TabControl Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="67*"/>
+            <ColumnDefinition Width="1213*"/>
+        </Grid.ColumnDefinitions>
+        <TabControl Grid.ColumnSpan="2">
             <TabItem Header="Radar"
-                     x:Name="RadarTab">
+                     x:Name="RadarTab" Margin="0,-1,0,1">
                 <tabs:RadarTab x:Name="Radar" />
             </TabItem>
 
-            <TabItem Header="Settings">
+            <TabItem Header="Settings" Margin="0,-1,0,1">
                 <TabControl Margin="4">
                     <TabItem Header="General">
                         <tabs:SettingsTab x:Name="Settings" />
@@ -35,22 +39,22 @@
                     <TabItem Header="Makcu Aimbot">
                         <tabs:MakcuTab x:Name="Makcu" />
                     </TabItem>
-                    <TabItem Header="MemWrites">
+                    <TabItem Header="MemWrites" Width="117">
                         <tabs:MemWritesTab x:Name="MemWrites" />
                     </TabItem>
                 </TabControl>
             </TabItem>
 
-            <TabItem Header="Web Radar">
+            <TabItem Header="Web Radar" Margin="0,-1,0,1">
                 <tabs:WebRadarTab x:Name="WebRadar" />
             </TabItem>
-            <TabItem Header="Player History">
+            <TabItem Header="Player History" Margin="0,-1,0,1">
                 <tabs:PlayerHistoryTab x:Name="PlayerHistory"/>
             </TabItem>
-            <TabItem Header="Player Watchlist">
+            <TabItem Header="Player Watchlist" Margin="0,-1,0,1">
                 <tabs:PlayerWatchlistTab x:Name="PlayerWatchlist"/>
             </TabItem>
-            <TabItem Header="Debug">
+            <TabItem Header="Debug" Margin="0,-1,0,1">
                 <tabs:DebugTab x:Name="DebugTab" />
             </TabItem>
         </TabControl>

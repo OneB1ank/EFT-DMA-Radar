@@ -139,7 +139,7 @@
                                   ToolTip="Choose where the player label is drawn relative to the bounding box."/>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="34" Height="24"
+                            <xctk:ColorPicker Width="42" Height="26"
                                               SelectedColor="{Binding EspColorPlayers, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
@@ -166,7 +166,7 @@
                                   ToolTip="Choose where the AI/scav label is drawn relative to the bounding box."/>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="34" Height="24"
+                            <xctk:ColorPicker Width="42" Height="26"
                                               SelectedColor="{Binding EspColorAI, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
@@ -188,7 +188,7 @@
                      </WrapPanel>
                     <WrapPanel Margin="0,8,0,0">
                         <TextBlock Text="Head Circle Color (All):" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <xctk:ColorPicker Width="34" Height="24"
+                        <xctk:ColorPicker Width="42" Height="26"
                                           SelectedColor="{Binding EspColorHeadCircle, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                           UsingAlphaChannel="True"
                                           ShowRecentColors="False"/>
@@ -243,14 +243,14 @@
                                    MinWidth="50"/>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Loot Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="34" Height="24"
+                            <xctk:ColorPicker Width="42" Height="26"
                                               SelectedColor="{Binding EspColorLoot, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Exfil Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="34" Height="24"
+                            <xctk:ColorPicker Width="42" Height="26"
                                               SelectedColor="{Binding EspColorExfil, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
@@ -281,7 +281,7 @@
                                        Margin="8,0,0,0" />
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Crosshair Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="34" Height="24"
+                            <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorCrosshair, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
