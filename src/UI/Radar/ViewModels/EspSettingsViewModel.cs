@@ -561,19 +561,6 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
-        public int RadarMaxFPS
-        {
-            get => App.Config.UI.RadarMaxFPS;
-            set
-            {
-                if (App.Config.UI.RadarMaxFPS != value)
-                {
-                    App.Config.UI.RadarMaxFPS = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public float EspPlayerMaxDistance
         {
             get => App.Config.UI.EspPlayerMaxDistance;

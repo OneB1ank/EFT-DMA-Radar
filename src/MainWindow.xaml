@@ -27,7 +27,7 @@
 
             <TabItem Header="Settings" Margin="0,-1,0,1">
                 <TabControl Margin="4">
-                    <TabItem Header="General" Height="34" Margin="0,-1,16,0" VerticalAlignment="Top">
+                    <TabItem Header="Radar" Margin="0,-1,16,1">
                         <tabs:SettingsTab x:Name="Settings" />
                     </TabItem>
                     <TabItem Header="ESP Fuser" Height="34" Margin="0,-1,16,0" VerticalAlignment="Top">

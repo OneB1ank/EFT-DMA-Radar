@@ -428,6 +428,19 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public int RadarMaxFPS
+        {
+            get => App.Config.UI.RadarMaxFPS;
+            set
+            {
+                if (App.Config.UI.RadarMaxFPS != value)
+                {
+                    App.Config.UI.RadarMaxFPS = value;
+                    OnPropertyChanged(nameof(RadarMaxFPS));
+                }
+            }
+        }
+
         #endregion
 
         #region Loot

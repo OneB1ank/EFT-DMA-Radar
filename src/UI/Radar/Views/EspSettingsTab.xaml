@@ -34,10 +34,6 @@
                                 Height="32"
                                 Margin="0,0,16,8"
                                 ToolTip="Opens the ESP Window in Fullscreen Mode."/>
-                        <CheckBox Content="Crosshair"
-                                  ToolTip="Displays a simple crosshair at the center of the ESP window."
-                                  IsChecked="{Binding EspCrosshair, Mode=TwoWay}"
-                                  Margin="0,0,16,8" />
                     </WrapPanel>
 
                     <WrapPanel Margin="0,4,0,0">
@@ -55,21 +51,6 @@
                         <TextBox Width="50" Text="{Binding EspScreenWidth, Mode=TwoWay}" Margin="0,0,8,0" ToolTip="Width (e.g. 1920)"/>
                         <TextBlock Text="x" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Width="50" Text="{Binding EspScreenHeight, Mode=TwoWay}" Margin="0,0,16,0" ToolTip="Height (e.g. 1080)"/>
-                    </WrapPanel>
-
-                    <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspCrosshair}">
-                        <TextBlock Text="Crosshair Length" VerticalAlignment="Center"/>
-                        <Slider x:Name="CrosshairLengthSlider"
-                                Width="150"
-                                Margin="8,0"
-                                Minimum="5"
-                                Maximum="100"
-                                SmallChange="1"
-                                LargeChange="5"
-                                Value="{Binding EspCrosshairLength, Mode=TwoWay}"/>
-                        <TextBlock Text="{Binding Value, ElementName=CrosshairLengthSlider, StringFormat=F0}"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
                     </WrapPanel>
 
                     <GroupBox Header="Text Style" Margin="0,8,0,0">
@@ -261,7 +242,7 @@
             </GroupBox>
 
             <!-- Performance Settings -->
-            <GroupBox Header="Performance"
+            <GroupBox Header="Misc"
                       Margin="0,0,0,12">
                 <StackPanel>
                     <StackPanel Margin="0,0,0,8">
@@ -276,17 +257,10 @@
                                     LargeChange="30"
                                     TickFrequency="30"
                                     IsSnapToTickEnabled="True"
-                                    Value="{Binding EspMaxFPS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                   Value="{Binding EspMaxFPS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text="{Binding Value, ElementName=EspFpsSlider, StringFormat='{}{0:F0}'}"
                                        VerticalAlignment="Center"
                                        Margin="8,0,0,0" />
-                            <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Crosshair Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <xctk:ColorPicker Width="42" Height="26"
-                                                  SelectedColor="{Binding EspColorCrosshair, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
-                                                  UsingAlphaChannel="True"
-                                                  ShowRecentColors="False"/>
-                            </StackPanel>
                         </StackPanel>
                         <TextBlock Text="0 = unlimited (defaults to 144). Lower values save CPU/GPU."
                                    Foreground="Gray"
@@ -294,27 +268,33 @@
                                    Margin="0,2,0,0" />
                     </StackPanel>
 
-                    <StackPanel Margin="0,0,0,8">
-                        <TextBlock Text="Radar Max FPS (0 = unlimited):"
-                                   VerticalAlignment="Center" />
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <Slider x:Name="RadarFpsSlider"
-                                    Width="220"
-                                    Minimum="0"
-                                    Maximum="240"
-                                    SmallChange="5"
-                                    LargeChange="15"
-                                    TickFrequency="15"
-                                    IsSnapToTickEnabled="True"
-                                    Value="{Binding RadarMaxFPS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBlock Text="{Binding Value, ElementName=RadarFpsSlider, StringFormat='{}{0:F0}'}"
-                                       VerticalAlignment="Center"
-                                       Margin="8,0,0,0" />
-                        </StackPanel>
-                        <TextBlock Text="Cap the radar render to free headroom for the ESP."
-                                   Foreground="Gray"
-                                   FontSize="10"
-                                   Margin="0,2,0,0" />
+
+                    <CheckBox Content="Crosshair"
+                                  ToolTip="Displays a simple crosshair at the center of the ESP window."
+                                  IsChecked="{Binding EspCrosshair, Mode=TwoWay}"
+                                  Margin="0,0,16,8" />
+
+                    <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspCrosshair}">
+                        <TextBlock Text="Crosshair Length" VerticalAlignment="Center"/>
+                        <Slider x:Name="CrosshairLengthSlider"
+                                Width="150"
+                                Margin="8,0"
+                                Minimum="5"
+                                Maximum="100"
+                                SmallChange="1"
+                                LargeChange="5"
+                                Value="{Binding EspCrosshairLength, Mode=TwoWay}"/>
+                        <TextBlock Text="{Binding Value, ElementName=CrosshairLengthSlider, StringFormat=F0}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0"/>
+                    </WrapPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Crosshair Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <xctk:ColorPicker Width="42" Height="26"
+                                              SelectedColor="{Binding EspColorCrosshair, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
+                                              UsingAlphaChannel="True"
+                                              ShowRecentColors="False"/>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

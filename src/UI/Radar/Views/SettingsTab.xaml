@@ -16,8 +16,8 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Orientation="Vertical"
                     Margin="0,0,0,10">
-            <!-- Radar / General Settings -->
-            <GroupBox Header="Radar / General Settings"
+            <!-- Radar Settings -->
+            <GroupBox Header="Radar Settings"
                       Margin="0,0,0,12">
                 <StackPanel>
 
@@ -101,6 +101,25 @@ Toggle Fullscreen: F11
                                     LargeChange="10"
                                     Value="{Binding ContainerDistance, Mode=TwoWay}" />
                             <TextBlock Text="{Binding Value, ElementName=ContainerDistSlider}"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,16,8">
+                            <TextBlock Text="Radar Max FPS (0 = Unlimited)"
+                                       VerticalAlignment="Center" />
+                            <Slider x:Name="RadarFpsSlider"
+                                    Width="180"
+                                    Margin="8,0"
+                                    Minimum="0"
+                                    Maximum="240"
+                                    SmallChange="5"
+                                    LargeChange="15"
+                                    TickFrequency="15"
+                                    IsSnapToTickEnabled="True"
+                                    Value="{Binding RadarMaxFPS, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding Value, ElementName=RadarFpsSlider, StringFormat='{}{0:F0}'}"
                                        VerticalAlignment="Center"
                                        Margin="8,0,0,0" />
                         </StackPanel>

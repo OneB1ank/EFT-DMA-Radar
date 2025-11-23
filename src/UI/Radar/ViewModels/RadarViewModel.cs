@@ -227,23 +227,30 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
         /// <param name="e"></param>
         private void Radar_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e)
         {
-            // FPS cap for radar rendering to free headroom for ESP
+            // Working vars
+            var isStarting = Starting;
+            var isReady = Ready;
+            var inRaid = InRaid;
+            var canvas = e.Surface.Canvas;
+            // FPS cap for radar rendering to free headroom for ESP.
             int maxFps = App.Config.UI.RadarMaxFPS;
             if (maxFps > 0)
             {
                 long now = Stopwatch.GetTimestamp();
                 double elapsedMs = (now - _lastRadarFrameTicks) * 1000.0 / Stopwatch.Frequency;
                 double targetMs = 1000.0 / maxFps;
-                if (elapsedMs < targetMs)
-                    return;
+                double waitMs = targetMs - elapsedMs;
+                if (waitMs > 0)
+                {
+                    Thread.Sleep((int)Math.Min(waitMs, 50)); // block briefly to align with target frame time
+                    now = Stopwatch.GetTimestamp();
+                }
                 _lastRadarFrameTicks = now;
             }
-
-            // Working vars
-            var isStarting = Starting;
-            var isReady = Ready;
-            var inRaid = InRaid;
-            var canvas = e.Surface.Canvas;
+            else
+            {
+                _lastRadarFrameTicks = Stopwatch.GetTimestamp();
+            }
             // Begin draw
             try
             {
