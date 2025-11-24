@@ -46,7 +46,7 @@
                     <TabItem Header="Device Aimbot">
                         <tabs:DeviceAimbotTab x:Name="DeviceAimbot" />
                     </TabItem>
-                    <TabItem Header="MemWrites" Width="117">
+                    <TabItem Header="MemWrites">
                         <tabs:MemWritesTab x:Name="MemWrites" />
                     </TabItem>
                 </TabControl>

@@ -49,16 +49,20 @@
                 <Setter Property="Background" Value="{DynamicResource App.BackgroundBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Padding" Value="0" />
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" />
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabControl">
                             <DockPanel>
-                                <TabPanel x:Name="HeaderPanel"
-                                          DockPanel.Dock="Top"
-                                          IsItemsHost="True"
-                                          Margin="4,8,4,0"
-                                          Background="Transparent"
-                                          ClipToBounds="False"/>
+                                <ItemsPresenter x:Name="HeaderPanel"
+                                                DockPanel.Dock="Top"
+                                                Margin="8,8,8,0" />
                                 <Border Background="{TemplateBinding Background}"
                                         BorderThickness="0"
                                         Padding="8,4,8,8">
@@ -76,7 +80,7 @@
 
             <Style TargetType="TabItem">
                 <Setter Property="Padding" Value="16,8" />
-                <Setter Property="Margin" Value="0,2,12,2" />
+                <Setter Property="Margin" Value="0,2,2,2" />
                 <Setter Property="MinHeight" Value="32" />
                 <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                 <Setter Property="Template">
@@ -371,6 +375,69 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+            </Style>
+
+            <!-- DataGrid -->
+            <Style TargetType="DataGrid">
+                <Setter Property="Background" Value="{DynamicResource App.BackgroundBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource App.BorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="RowBackground" Value="Transparent" />
+                <Setter Property="AlternatingRowBackground" Value="#14171D" />
+                <Setter Property="GridLinesVisibility" Value="None" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="CanUserDeleteRows" Value="False" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+            </Style>
+
+            <Style TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="#181B21" />
+                <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource App.BorderBrush}" />
+                <Setter Property="BorderThickness" Value="0,0,1,1" />
+                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+            </Style>
+
+            <Style TargetType="DataGridCell">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="8,4" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DataGridCell">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#222730" />
+                        <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style TargetType="DataGridRow">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#222730" />
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#1A1D23" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <!-- Slider chrome -->
