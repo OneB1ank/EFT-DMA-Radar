@@ -528,6 +528,12 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                     bone.UpdatePosition(vertices.Span);
                                 }
                                 _skeletonErrorLogged = false;
+
+                                // Re-enable player after successful position update (in case it was disabled due to errors)
+                                if (!IsActive && IsAlive)
+                                {
+                                    IsActive = true;
+                                }
                             }
                             catch (ArgumentOutOfRangeException ex)
                             {
@@ -541,9 +547,22 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                             }
                             catch (Exception ex) // Attempt to re-allocate Transform on error
                             {
-                                DebugLogger.LogDebug($"ERROR getting Player '{Name}' SkeletonRoot Position: {ex}");
-                                var transform = new UnityTransform(SkeletonRoot.TransformInternal);
-                                SkeletonRoot = transform;
+                                if (!_skeletonErrorLogged)
+                                {
+                                    DebugLogger.LogDebug($"ERROR getting Player '{Name}' SkeletonRoot Position: {ex}");
+                                    _skeletonErrorLogged = true;
+                                }
+                                try
+                                {
+                                    var transform = new UnityTransform(SkeletonRoot.TransformInternal);
+                                    SkeletonRoot = transform;
+                                }
+                                catch
+                                {
+                                    // If transform re-allocation also fails, we have stale data
+                                    // Mark as inactive to prevent rendering until next successful update
+                                    IsActive = false;
+                                }
                                 successPos = false;
                             }
                         }
