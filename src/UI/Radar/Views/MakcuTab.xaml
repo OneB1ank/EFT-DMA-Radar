@@ -11,10 +11,9 @@
     </d:UserControl.DataContext>
     
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-            
+        <UniformGrid Columns="2" Rows="0" Margin="0,0,0,10" HorizontalAlignment="Stretch">
             <!-- Device Connection -->
-            <GroupBox Header="Device Connection" Margin="0,0,0,12">
+            <GroupBox Header="Device Connection" Margin="0,0,12,12">
                 <StackPanel>
                     <TextBlock Text="Status:" FontWeight="Bold" Margin="8,8,8,4" />
                     <TextBlock Text="{Binding ConnectionStatus}" Margin="8,0,8,8" />
@@ -65,8 +64,9 @@
                     <Button Content="? Test Mouse Movement" 
                             Command="{Binding TestMoveCommand}" 
                             Padding="15,8" 
-                            Background="#E3F2FD"
-                            BorderBrush="DodgerBlue"
+                            Background="#FF1E1E1E"
+                            BorderBrush="#FF3A3A3A"
+                            Foreground="#FFE6E6E6"
                             ToolTip="Moves the mouse in a test pattern to verify the device is working"
                             IsEnabled="{Binding IsConnected}"/>
                     <TextBlock Text="? (Device must be connected)" 
@@ -85,11 +85,6 @@
                               FontWeight="Bold"
                               Margin="8,8,8,8" />
                     
-                    <CheckBox Content="Show Debug Overlay (ESP)"
-                              IsChecked="{Binding ShowDebug, Mode=TwoWay}"
-                              Margin="8,4,8,8"
-                              ToolTip="Shows detailed debug information on the ESP overlay"/>
-                    
                     <TextBlock Text="Target Bone" FontWeight="Bold" Margin="8,8,8,4" />
                     <ComboBox ItemsSource="{Binding AvailableBones}"
                               SelectedItem="{Binding TargetBone, Mode=TwoWay}"
@@ -101,6 +96,16 @@
                         <ComboBoxItem Content="Closest to Crosshair (FOV)" />
                         <ComboBoxItem Content="Closest Distance" />
                     </ComboBox>
+
+                    <TextBlock Text="{Binding Smoothing, StringFormat='Smoothing: {0:F1}x'}" 
+                               FontWeight="Bold"
+                               Margin="8,8,8,4" />
+                    <Slider Value="{Binding Smoothing, Mode=TwoWay}"
+                            Minimum="1"
+                            Maximum="8"
+                            TickFrequency="0.5"
+                            IsSnapToTickEnabled="True"
+                            Margin="8,4,8,8" />
                     
                     <TextBlock Text="{Binding FOV, StringFormat='FOV: {0:F0}'}" 
                                FontWeight="Bold"
@@ -129,7 +134,7 @@
             </GroupBox>
 
             <!-- Target Filters -->
-            <GroupBox Header="Target Filters" Margin="0,0,0,12">
+            <GroupBox Header="Target Filters" Margin="0,0,12,12">
                 <StackPanel>
                     <TextBlock Text="Select which player types to target" 
                                TextWrapping="Wrap"
@@ -172,7 +177,6 @@
                     Make sure your Makcu firmware is up to date.
                 </TextBlock>
             </GroupBox>
-
-        </StackPanel>
+        </UniformGrid>
     </ScrollViewer>
 </UserControl>

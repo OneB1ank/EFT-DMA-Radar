@@ -35,7 +35,6 @@ namespace LoneEftDmaRadar.UI.Misc
         private BallisticsInfo _lastBallistics;
         private string _debugStatus = "Initializing...";
         private AbstractPlayer _lockedTarget;
-        private bool _isEngaged;
 
         // FOV / target debug fields
         private int _lastCandidateCount;
@@ -80,6 +79,12 @@ namespace LoneEftDmaRadar.UI.Misc
         public MakcuAimbot(MemDMA memory)
         {
             _memory = memory;
+
+            // Try auto-connect if configured and device isn't ready.
+            if (Config.AutoConnect && !Device.connected)
+            {
+                try { Device.TryAutoConnect(Config.LastComPort); } catch { /* best-effort */ }
+            }
 
             _worker = new Thread(WorkerLoop)
             {
@@ -175,17 +180,28 @@ namespace LoneEftDmaRadar.UI.Misc
                     _debugStatus = "Updating FirearmManager...";
                     localPlayer.UpdateFirearmManager();
 
-                    if (localPlayer.FirearmManager?.FireportPosition is not Vector3 fireportPos)
+                    var fireportPosOpt = localPlayer.FirearmManager?.FireportPosition;
+                    bool needsFireport = Config.EnablePrediction ||
+                        (App.Config.MemWrites.Enabled && App.Config.MemWrites.MemoryAimEnabled);
+
+                    if (needsFireport && fireportPosOpt is not Vector3 fireportPos)
                     {
-                        _debugStatus = "No valid weapon / fireport";
+                        _debugStatus = "No valid weapon / fireport (needed for prediction/MemoryAim)";
                         ResetTarget();
                         _hasLastFireport = false;
                         Thread.Sleep(16);
                         continue;
                     }
 
-                    _lastFireportPos = fireportPos;
-                    _hasLastFireport = true;
+                    if (fireportPosOpt is Vector3 fp)
+                    {
+                        _lastFireportPos = fp;
+                        _hasLastFireport = true;
+                    }
+                    else
+                    {
+                        _hasLastFireport = false;
+                    }
 
                     // 6) Target acquisition
                     if (_lockedTarget == null || !IsTargetValid(_lockedTarget, localPlayer))
@@ -205,18 +221,17 @@ namespace LoneEftDmaRadar.UI.Misc
 
                     // 7) Ballistics
                     _lastBallistics = GetBallisticsInfo(localPlayer);
-                    if (_lastBallistics == null || !_lastBallistics.IsAmmoValid)
-                    {
-                        _debugStatus = $"Target {_lockedTarget.Name} - No valid ammo/ballistics";
-                    }
-                    else
-                    {
-                        _debugStatus = $"Target {_lockedTarget.Name} - Ballistics OK";
-                    }
+            if (_lastBallistics == null || !_lastBallistics.IsAmmoValid)
+            {
+                _debugStatus = $"Target {_lockedTarget.Name} - No valid ammo/ballistics (using raw aim)";
+            }
+            else
+            {
+                _debugStatus = $"Target {_lockedTarget.Name} - Ballistics OK";
+            }
 
                     // 8) Aim
-                    AimAtTarget(localPlayer, _lockedTarget, fireportPos);
-                    _isEngaged = true;
+                    AimAtTarget(localPlayer, _lockedTarget, fireportPosOpt);
 
                     Thread.Sleep(8); // ~125Hz
                 }
@@ -241,6 +256,10 @@ namespace LoneEftDmaRadar.UI.Misc
             var candidates = new List<TargetCandidate>();
             _lastCandidateCount = 0;
 
+            // Treat zero/negative limits as "unlimited" so users can clear the field without breaking targeting.
+            float maxDistance = Config.MaxDistance <= 0 ? float.MaxValue : Config.MaxDistance;
+            float maxFov = Config.FOV <= 0 ? float.MaxValue : Config.FOV;
+
             // reset per-stage counters
             _dbgTotalPlayers = 0;
             _dbgEligibleType = 0;
@@ -258,7 +277,7 @@ namespace LoneEftDmaRadar.UI.Misc
                 _dbgEligibleType++;
 
                 var distance = Vector3.Distance(localPlayer.Position, player.Position);
-                if (distance > Config.MaxDistance)
+                if (distance > maxDistance)
                     continue;
 
                 _dbgWithinDistance++;
@@ -276,7 +295,8 @@ namespace LoneEftDmaRadar.UI.Misc
                 foreach (var bone in player.Skeleton.BoneTransforms.Values)
                 {
                     // IMPORTANT: use same W2S style as ESP  "in" + default flags
-                    if (CameraManagerNew.WorldToScreen(in bone.Position, out var screenPos))
+                    // Disable on-screen check so viewport issues don't discard candidates.
+                    if (CameraManagerNew.WorldToScreen(in bone.Position, out var screenPos, false))
                     {
                         anyBoneProjected = true;
                         float fovDist = CameraManagerNew.GetFovMagnitude(screenPos);
@@ -290,7 +310,7 @@ namespace LoneEftDmaRadar.UI.Misc
                 if (anyBoneProjected)
                     _dbgW2SPassed++;
 
-                if (bestFovForThisPlayer < Config.FOV)
+                if (bestFovForThisPlayer <= maxFov)
                 {
                     candidates.Add(new TargetCandidate
                     {
@@ -392,8 +412,11 @@ private bool ShouldTargetPlayer(AbstractPlayer player, LocalPlayer localPlayer)
             if (target == null || !target.IsActive || !target.IsAlive)
                 return false;
 
+            float maxDistance = Config.MaxDistance <= 0 ? float.MaxValue : Config.MaxDistance;
+            float maxFov = Config.FOV <= 0 ? float.MaxValue : Config.FOV;
+
             var distance = Vector3.Distance(localPlayer.Position, target.Position);
-            if (distance > Config.MaxDistance)
+            if (distance > maxDistance)
                 return false;
 
             // Check if skeleton exists
@@ -406,7 +429,7 @@ private bool ShouldTargetPlayer(AbstractPlayer player, LocalPlayer localPlayer)
 
             foreach (var bone in target.Skeleton.BoneTransforms.Values)
             {
-                if (CameraManagerNew.WorldToScreen(in bone.Position, out var screenPos))
+                if (CameraManagerNew.WorldToScreen(in bone.Position, out var screenPos, false))
                 {
                     anyBoneProjected = true;
                     float fovDist = CameraManagerNew.GetFovMagnitude(screenPos);
@@ -423,7 +446,7 @@ private bool ShouldTargetPlayer(AbstractPlayer player, LocalPlayer localPlayer)
 
             _lastLockedTargetFov = minFov;
 
-            if (minFov < Config.FOV)
+            if (minFov < maxFov)
             {
                 _lastIsTargetValid = true;
                 return true;
@@ -440,30 +463,59 @@ private bool ShouldTargetPlayer(AbstractPlayer player, LocalPlayer localPlayer)
             }
         }
 
+        private bool TryGetTargetBone(AbstractPlayer target, out UnityTransform boneTransform)
+        {
+            boneTransform = null;
+
+            // Closest-visible bone option
+            if (Config.TargetBone == Bones.Closest)
+            {
+                float bestFov = float.MaxValue;
+                foreach (var candidate in target.Skeleton.BoneTransforms.Values)
+                {
+                    if (CameraManagerNew.WorldToScreen(in candidate.Position, out var screenPos))
+                    {
+                        float fov = CameraManagerNew.GetFovMagnitude(screenPos);
+                        if (fov < bestFov)
+                        {
+                            bestFov = fov;
+                            boneTransform = candidate;
+                        }
+                    }
+                }
+
+                if (boneTransform != null)
+                    return true;
+            }
+
+            // Specific bone
+            if (target.Skeleton.BoneTransforms.TryGetValue(Config.TargetBone, out boneTransform))
+                return true;
+
+            // Fallback to chest if configured bone not found
+            return target.Skeleton.BoneTransforms.TryGetValue(Bones.HumanSpine3, out boneTransform);
+        }
+
         #endregion
 
         #region Aiming
 
-        private void AimAtTarget(LocalPlayer localPlayer, AbstractPlayer target, Vector3 fireportPos)
+        private void AimAtTarget(LocalPlayer localPlayer, AbstractPlayer target, Vector3? fireportPos)
         {
             // Check if skeleton exists
             if (target.Skeleton?.BoneTransforms == null)
                 return;
 
             // Get target bone position
-            if (!target.Skeleton.BoneTransforms.TryGetValue(Config.TargetBone, out var boneTransform))
-            {
-                // Fallback to chest if configured bone not found
-                if (!target.Skeleton.BoneTransforms.TryGetValue(Bones.HumanSpine3, out boneTransform))
-                    return;
-            }
+            if (!TryGetTargetBone(target, out var boneTransform))
+                return;
 
             Vector3 targetPos = boneTransform.Position;
 
             // Apply ballistics prediction if enabled
-            if (Config.EnablePrediction && localPlayer.FirearmManager != null)
+            if (Config.EnablePrediction && localPlayer.FirearmManager != null && fireportPos.HasValue && _lastBallistics?.IsAmmoValid == true)
             {
-                targetPos = PredictHitPoint(localPlayer, target, fireportPos, targetPos);
+                targetPos = PredictHitPoint(localPlayer, target, fireportPos.Value, targetPos);
             }
 
             // ? Check if MemoryAim is enabled
@@ -484,9 +536,20 @@ private bool ShouldTargetPlayer(AbstractPlayer player, LocalPlayer localPlayer)
             float deltaX = screenPos.X - center.X;
             float deltaY = screenPos.Y - center.Y;
 
+            // Apply smoothing (>=1). Higher values = slower movement.
+            float smooth = Math.Max(1f, Config.Smoothing);
+            deltaX /= smooth;
+            deltaY /= smooth;
+
             // Convert to mouse movement
             int moveX = (int)Math.Round(deltaX);
             int moveY = (int)Math.Round(deltaY);
+
+            // Ensure at least 1 pixel step when delta exists
+            if (moveX == 0 && Math.Abs(deltaX) > 0.001f)
+                moveX = Math.Sign(deltaX);
+            if (moveY == 0 && Math.Abs(deltaY) > 0.001f)
+                moveY = Math.Sign(deltaY);
 
             // Apply movement
             if (moveX != 0 || moveY != 0)
@@ -523,12 +586,15 @@ private void ApplyMemoryAim(LocalPlayer localPlayer, Vector3 targetPosition)
         Vector2 delta = aimAngle - viewAngles;
         NormalizeAngle(ref delta);
 
-        // 4) Gun angle mapping (identical to old ApplySilentAim)
-        Vector3 gunAngle = new Vector3(
-            DegToRad(delta.X) / 1.5f,
+        // 4) Gun angle mapping (tighter: no extra damping, clamped to sane limits)
+        var gunAngle = new Vector3(
+            DegToRad(delta.X),
             0.0f,
-            DegToRad(delta.Y) / 1.5f
+            DegToRad(delta.Y)
         );
+        const float maxRad = 0.35f; // ~20 degrees
+        gunAngle.X = Math.Clamp(gunAngle.X, -maxRad, maxRad);
+        gunAngle.Z = Math.Clamp(gunAngle.Z, -maxRad, maxRad);
 
         // 5) Write to _shotDirection (same as old 0x22C)
         ulong shotDirectionAddr = localPlayer.PWA + Offsets.ProceduralWeaponAnimation._shotDirection;
@@ -659,8 +725,8 @@ private static float RadToDeg(float radians)
                 var ammoTemplate = FirearmManager.MagazineManager.GetAmmoTemplateFromWeapon(itemBase);
                 if (ammoTemplate == 0)
                 {
-                    DebugLogger.LogDebug("[MakcuAimbot] No ammo template found");
-                    return null;
+                    DebugLogger.LogDebug("[MakcuAimbot] No ammo template found, using fallback ballistics");
+                    return CreateFallbackBallistics();
                 }
 
                 // Read ballistics data
@@ -680,13 +746,31 @@ private static float RadToDeg(float radians)
 
                 ballistics.BulletSpeed = baseSpeed * (1f + (velMod / 100f));
 
+                if (!ballistics.IsAmmoValid)
+                {
+                    DebugLogger.LogDebug("[MakcuAimbot] Ammo ballistics invalid, using fallback ballistics");
+                    return CreateFallbackBallistics();
+                }
+
                 return ballistics;
             }
             catch (Exception ex)
             {
-                DebugLogger.LogDebug($"[MakcuAimbot] Failed to get ballistics: {ex}");
-                return null;
+                DebugLogger.LogDebug($"[MakcuAimbot] Failed to get ballistics: {ex}. Using fallback ballistics.");
+                return CreateFallbackBallistics();
             }
+        }
+
+        private static BallisticsInfo CreateFallbackBallistics()
+        {
+            // Generic 7.62-ish defaults to keep prediction running when reads fail.
+            return new BallisticsInfo
+            {
+                BulletMassGrams = 8.0f,
+                BulletDiameterMillimeters = 7.6f,
+                BallisticCoefficient = 0.35f,
+                BulletSpeed = 800f
+            };
         }
 
         private void AddAttachmentVelocity(ulong itemBase, ref float velocityModifier)
@@ -725,7 +809,37 @@ private static float RadToDeg(float radians)
         /// <summary>
         /// Set to true while the aim-key is held (from hotkey/ui).
         /// </summary>
-        public bool IsEngaged { get; set; }
+        private bool _isEngaged;
+        public bool IsEngaged
+        {
+            get => _isEngaged;
+            set
+            {
+                if (_isEngaged == value)
+                    return;
+
+                _isEngaged = value;
+
+                // Keep MemoryAim in sync with hotkey state (if enabled).
+                try
+                {
+                    if (App.Config.MemWrites.Enabled && App.Config.MemWrites.MemoryAimEnabled)
+                        LoneEftDmaRadar.Tarkov.Features.MemWrites.MemoryAim.Instance.SetEngaged(value);
+                }
+                catch { /* best-effort sync */ }
+
+                if (!value)
+                {
+                    // When key is released, drop any lock/target immediately.
+                    ResetTarget();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the currently locked target (if any). May be null.
+        /// </summary>
+        public AbstractPlayer LockedTarget => _lockedTarget;
 
         private readonly struct TargetCandidate
         {
@@ -916,9 +1030,91 @@ private static float RadToDeg(float radians)
                 DebugLogger.LogDebug($"[MakcuAimbot] DrawDebug error: {ex}");
             }
         }
+
+        /// <summary>
+        /// Returns the latest debug snapshot for UI/ESP overlays.
+        /// </summary>
+        public MakcuDebugSnapshot GetDebugSnapshot()
+        {
+            try
+            {
+                var localPlayer = _memory.LocalPlayer;
+                float? distanceToTarget = null;
+                if (localPlayer != null && _lockedTarget != null)
+                    distanceToTarget = Vector3.Distance(localPlayer.Position, _lockedTarget.Position);
+
+                return new MakcuDebugSnapshot
+                {
+                    Status = _debugStatus,
+                    KeyEngaged = IsEngaged,
+                    Enabled = Config.Enabled,
+                    DeviceConnected = Device.connected,
+                    InRaid = _memory.InRaid,
+                    CandidateTotal = _dbgTotalPlayers,
+                    CandidateTypeOk = _dbgEligibleType,
+                    CandidateInDistance = _dbgWithinDistance,
+                    CandidateWithSkeleton = _dbgHaveSkeleton,
+                    CandidateW2S = _dbgW2SPassed,
+                    CandidateCount = _lastCandidateCount,
+                    ConfigFov = Config.FOV,
+                    ConfigMaxDistance = Config.MaxDistance,
+                    TargetValid = _lastIsTargetValid,
+                    LockedTargetName = _lockedTarget?.Name,
+                    LockedTargetType = _lockedTarget?.Type,
+                    LockedTargetDistance = distanceToTarget,
+                    LockedTargetFov = _lastLockedTargetFov,
+                    TargetBone = Config.TargetBone,
+                    HasFireport = _hasLastFireport,
+                    FireportPosition = _hasLastFireport ? _lastFireportPos : (Vector3?)null,
+                    BallisticsValid = _lastBallistics?.IsAmmoValid ?? false,
+                    BulletSpeed = _lastBallistics?.BulletSpeed,
+                    PredictionEnabled = Config.EnablePrediction,
+                    TargetingMode = Config.Targeting
+                };
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.LogDebug($"[MakcuAimbot] GetDebugSnapshot error: {ex}");
+                return null;
+            }
+        }
         #endregion
         #endregion
         
+    }
+
+    public sealed class MakcuDebugSnapshot
+    {
+        public string Status { get; set; }
+        public bool KeyEngaged { get; set; }
+        public bool Enabled { get; set; }
+        public bool DeviceConnected { get; set; }
+        public bool InRaid { get; set; }
+
+        public int CandidateTotal { get; set; }
+        public int CandidateTypeOk { get; set; }
+        public int CandidateInDistance { get; set; }
+        public int CandidateWithSkeleton { get; set; }
+        public int CandidateW2S { get; set; }
+        public int CandidateCount { get; set; }
+
+        public float ConfigFov { get; set; }
+        public float ConfigMaxDistance { get; set; }
+        public MakcuConfig.TargetingMode TargetingMode { get; set; }
+        public Bones TargetBone { get; set; }
+        public bool PredictionEnabled { get; set; }
+
+        public bool TargetValid { get; set; }
+        public string LockedTargetName { get; set; }
+        public PlayerType? LockedTargetType { get; set; }
+        public float? LockedTargetDistance { get; set; }
+        public float LockedTargetFov { get; set; }
+
+        public bool HasFireport { get; set; }
+        public Vector3? FireportPosition { get; set; }
+
+        public bool BallisticsValid { get; set; }
+        public float? BulletSpeed { get; set; }
     }
     public static class Vector3Extensions
     {

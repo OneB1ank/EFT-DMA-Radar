@@ -125,6 +125,18 @@
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="16,4,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="BEAR Faction:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <xctk:ColorPicker Width="42" Height="26"
+                                              SelectedColor="{Binding EspColorFactionBear, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
+                                              UsingAlphaChannel="True"
+                                              ShowRecentColors="False"/>
+                            <TextBlock Text="USEC:" VerticalAlignment="Center" Margin="10,0,6,0"/>
+                            <xctk:ColorPicker Width="42" Height="26"
+                                              SelectedColor="{Binding EspColorFactionUsec, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
+                                              UsingAlphaChannel="True"
+                                              ShowRecentColors="False"/>
+                        </StackPanel>
                     </WrapPanel>
                 </StackPanel>
             </GroupBox>
@@ -146,9 +158,23 @@
                                   SelectedItem="{Binding EspLabelPositionAI, Mode=TwoWay}"
                                   ToolTip="Choose where the AI/scav label is drawn relative to the bounding box."/>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="AI/Scav Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <xctk:ColorPicker Width="42" Height="26"
                                               SelectedColor="{Binding EspColorAI, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
+                                              UsingAlphaChannel="True"
+                                              ShowRecentColors="False"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Raider Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <xctk:ColorPicker Width="42" Height="26"
+                                              SelectedColor="{Binding EspColorRaiders, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
+                                              UsingAlphaChannel="True"
+                                              ShowRecentColors="False"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Boss Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <xctk:ColorPicker Width="42" Height="26"
+                                              SelectedColor="{Binding EspColorBosses, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                               UsingAlphaChannel="True"
                                               ShowRecentColors="False"/>
                         </StackPanel>
@@ -167,13 +193,10 @@
                                    VerticalAlignment="Center"
                                    MinWidth="50"/>
                      </WrapPanel>
-                    <WrapPanel Margin="0,8,0,0">
-                        <TextBlock Text="Head Circle Color (All):" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <xctk:ColorPicker Width="42" Height="26"
-                                          SelectedColor="{Binding EspColorHeadCircle, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
-                                          UsingAlphaChannel="True"
-                                          ShowRecentColors="False"/>
-                    </WrapPanel>
+                    <TextBlock Text="Head circles inherit the entity color (players, scavs, raiders, bosses)."
+                               Foreground="Gray"
+                               FontSize="10"
+                               Margin="0,8,0,0"/>
                 </StackPanel>
             </GroupBox>
             

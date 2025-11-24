@@ -65,6 +65,7 @@ namespace LoneEftDmaRadar.UI.Misc
 
         public static bool connected = false;
         private static SerialPort port = null;
+        public static string CurrentPortName => port?.PortName;
         private static Thread button_inputs;
         public static string version = "";
         private static bool runReader = false;
@@ -282,6 +283,50 @@ namespace LoneEftDmaRadar.UI.Misc
             }
 
             return devices;
+        }
+
+        /// <summary>
+        /// Best-effort auto-connect using (in order):
+        /// 1) Previously saved COM port
+        /// 2) VID/PID friendly-name probe (Makcu)
+        /// 3) Iterate all COM ports (generic fallback)
+        /// </summary>
+        public static bool TryAutoConnect(string lastComPort = null)
+        {
+            if (connected)
+                return true;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(lastComPort))
+                {
+                    DebugLogger.LogDebug($"[Makcu] AutoConnect: trying saved port {lastComPort}");
+                    if (ConnectAuto(lastComPort))
+                        return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.LogDebug($"[Makcu] AutoConnect saved port failed: {ex.Message}");
+            }
+
+            // Try VID/PID detection
+            if (AutoConnectMakcu())
+                return true;
+
+            // Try all enumerated COM ports as a last resort
+            foreach (var dev in EnumerateSerialDevices())
+            {
+                try
+                {
+                    DebugLogger.LogDebug($"[Makcu] AutoConnect: probing {dev.Port} ({dev.Description})");
+                    if (ConnectAuto(dev.Port))
+                        return true;
+                }
+                catch { /* ignore and continue */ }
+            }
+
+            return false;
         }
 
         public static string TryGetComByFriendlyName(string friendlyContains, string serialContains = null)

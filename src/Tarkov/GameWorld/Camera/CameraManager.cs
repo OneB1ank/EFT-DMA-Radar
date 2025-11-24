@@ -115,11 +115,11 @@ public CameraManager()
         ActiveCameraPtr = 0;
 
         DebugLogger.LogDebug($"\n✓ FPS Camera: 0x{FPSCamera:X}");
-        DebugLogger.LogDebug($"  GameObject: 0x{Memory.ReadPtr(FPSCamera + 0x50, false):X}");
+        DebugLogger.LogDebug($"  GameObject: 0x{Memory.ReadPtr(FPSCamera + UnitySDK.UnityOffsets.Component_GameObjectOffset, false):X}");
         DebugLogger.LogDebug($"  Matrix Address: 0x{_fpsMatrixAddress:X}");
         
         DebugLogger.LogDebug($"✓ Optic Camera: 0x{OpticCamera:X}");
-        DebugLogger.LogDebug($"  GameObject: 0x{Memory.ReadPtr(OpticCamera + 0x50, false):X}");
+        DebugLogger.LogDebug($"  GameObject: 0x{Memory.ReadPtr(OpticCamera + UnitySDK.UnityOffsets.Component_GameObjectOffset, false):X}");
         DebugLogger.LogDebug($"  Matrix Address: 0x{_opticMatrixAddress:X}");
 
         VerifyViewMatrix(_fpsMatrixAddress, "FPS");
@@ -136,15 +136,15 @@ public CameraManager()
 
         private static ulong GetMatrixAddress(ulong cameraPtr)
         {
-            // Camera + 0x48 → GameObject
-            var gameObject = Memory.ReadPtr(cameraPtr + 0x50, false);
+            // Camera (Component) → GameObject
+            var gameObject = Memory.ReadPtr(cameraPtr + UnitySDK.UnityOffsets.Component_GameObjectOffset, false);
             if (gameObject == 0 || gameObject > 0x7FFFFFFFFFFF)
                 throw new InvalidOperationException($"Invalid GameObject: 0x{gameObject:X}");
 
-            // GameObject + 0x48 → Pointer1
-            var ptr1 = Memory.ReadPtr(gameObject + 0x50, false);
+            // GameObject + Components offset → Pointer1
+            var ptr1 = Memory.ReadPtr(gameObject + UnitySDK.UnityOffsets.GameObject_ComponentsOffset, false);
             if (ptr1 == 0 || ptr1 > 0x7FFFFFFFFFFF)
-                throw new InvalidOperationException($"Invalid Ptr1 (GameObject+0x50): 0x{ptr1:X}");
+                throw new InvalidOperationException($"Invalid Ptr1 (GameObject+UnitySDK.UnityOffsets.GameObject_ComponentsOffset): 0x{ptr1:X}");
 
             // Pointer1 + 0x18 → matrixAddress
             var matrixAddress = Memory.ReadPtr(ptr1 + 0x18, false);
@@ -160,8 +160,8 @@ public CameraManager()
             {
                 DebugLogger.LogDebug($"\n{name} Matrix @ 0x{matrixAddress:X}:");
 
-                // Read ViewMatrix at +0x118
-                var vm = Memory.ReadValue<Matrix4x4>(matrixAddress + 0x118, false);
+                // Read ViewMatrix
+                var vm = Memory.ReadValue<Matrix4x4>(matrixAddress + UnitySDK.UnityOffsets.Camera_ViewMatrixOffset, false);
 
                 // Check if normalized
                 float rightMag = MathF.Sqrt(vm.M11 * vm.M11 + vm.M12 * vm.M12 + vm.M13 * vm.M13);
@@ -212,8 +212,8 @@ private static (ulong fpsCamera, ulong opticCamera) FindCamerasByName(ulong list
                 continue;
             }
 
-            // Camera+0x50 -> GameObject
-            var gameObjectPtr = Memory.ReadPtr(cameraPtr + 0x50, false);
+            // Camera+UnitySDK.UnityOffsets.GameObject_ComponentsOffset -> GameObject
+            var gameObjectPtr = Memory.ReadPtr(cameraPtr + UnitySDK.UnityOffsets.GameObject_ComponentsOffset, false);
             if (gameObjectPtr == 0 || gameObjectPtr > 0x7FFFFFFFFFFF)
             {
                 DebugLogger.LogDebug($"  [{i:D2}] Camera 0x{cameraPtr:X} -> Invalid GameObject: 0x{gameObjectPtr:X}");
@@ -326,25 +326,21 @@ public void OnRealtimeLoop(VmmScatter scatter, LocalPlayer localPlayer)
         IsADS = localPlayer?.CheckIfADS() ?? false;
         IsScoped = IsADS && CheckIfScoped(localPlayer);
 
-        // Choose active matrix address
         ulong activeMatrixAddress = (IsADS && IsScoped) ? _opticMatrixAddress : _fpsMatrixAddress;
         ulong activeCamera = (IsADS && IsScoped) ? OpticCamera : FPSCamera;
         ActiveCameraPtr = activeCamera;
 
-        // ✅ Prepare all reads (batched into single DMA operation)
-        scatter.PrepareReadValue<Matrix4x4>(activeMatrixAddress + 0x120);
+        scatter.PrepareReadValue<Matrix4x4>(activeMatrixAddress + UnitySDK.UnityOffsets.Camera_ViewMatrixOffset);
         scatter.PrepareReadValue<float>(FPSCamera + UnitySDK.UnityOffsets.Camera_FOVOffset);
         scatter.PrepareReadValue<float>(FPSCamera + UnitySDK.UnityOffsets.Camera_AspectRatioOffset);
         scatter.PrepareReadValue<float>(activeCamera + UnitySDK.UnityOffsets.Camera_ZoomLevelOffset);
 
-        // ✅ FIX: Use Completed event instead of Execute() here!
-        // This allows LocalGameWorld to Execute() once after all reads are prepared
         scatter.Completed += (sender, s) =>
         {
             try
             {
                 // Read results when scatter completes
-                if (s.ReadValue<Matrix4x4>(activeMatrixAddress + 0x120, out var vm))
+                if (s.ReadValue<Matrix4x4>(activeMatrixAddress + UnitySDK.UnityOffsets.Camera_ViewMatrixOffset, out var vm))
                 {
                     _viewMatrix.Update(ref vm);
                 }
@@ -446,6 +442,18 @@ public static float ZoomLevel => _zoomLevel;
         private static float _fov;
         private static float _aspect;
         private static readonly ViewMatrix _viewMatrix = new();
+        public static Vector3 CameraPosition => new(_viewMatrix.M14, _viewMatrix.M24, _viewMatrix.Translation.Z);
+
+        public static void Reset()
+        {
+            var identity = Matrix4x4.Identity;
+            _viewMatrix.Update(ref identity);
+            Viewport = new Rectangle();
+            ActiveCameraPtr = 0;
+            EspRunning = false;
+            _fov = 0f;
+            _aspect = 0f;
+        }
 
 public static void UpdateViewportRes()
 {

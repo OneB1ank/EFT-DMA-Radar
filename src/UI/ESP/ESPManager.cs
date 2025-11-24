@@ -1,4 +1,7 @@
+using System;
 using System.Windows;
+using LoneEftDmaRadar.DMA;
+using CameraManagerNew = LoneEftDmaRadar.Tarkov.GameWorld.Camera.CameraManager;
 
 namespace LoneEftDmaRadar.UI.ESP
 {
@@ -6,6 +9,7 @@ namespace LoneEftDmaRadar.UI.ESP
     {
         private static ESPWindow _espWindow;
         private static bool _isInitialized = false;
+        private static bool _raidHooked = false;
 
         public static void Initialize()
         {
@@ -20,6 +24,18 @@ namespace LoneEftDmaRadar.UI.ESP
             };
             // _espWindow.Show(); // Don't show automatically on init
             _isInitialized = true;
+
+            if (!_raidHooked)
+            {
+                MemDMA.RaidStopped += MemDMA_RaidStopped;
+                _raidHooked = true;
+            }
+        }
+
+        private static void MemDMA_RaidStopped(object sender, EventArgs e)
+        {
+            // Reset ESP state on raid end so users don't need to restart the app.
+            Application.Current?.Dispatcher.InvokeAsync(() => _espWindow?.OnRaidStopped());
         }
 
         public static void ToggleESP()
@@ -95,7 +111,7 @@ namespace LoneEftDmaRadar.UI.ESP
         /// </summary>
         public static void ResetCamera()
         {
-            Tarkov.GameWorld.CameraManager.Reset();
+            CameraManagerNew.Reset();
             _espWindow?.RefreshESP();
         }
 

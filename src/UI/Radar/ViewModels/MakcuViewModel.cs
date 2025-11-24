@@ -83,6 +83,12 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             set { App.Config.Makcu.AutoConnect = value; OnPropertyChanged(); }
         }
 
+        public float Smoothing
+        {
+            get => App.Config.Makcu.Smoothing;
+            set { App.Config.Makcu.Smoothing = value; OnPropertyChanged(); }
+        }
+
         public bool Enabled
         {
             get => App.Config.Makcu.Enabled;
@@ -95,7 +101,8 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             Bones.HumanNeck,
             Bones.HumanSpine3,
             Bones.HumanSpine2,
-            Bones.HumanPelvis
+            Bones.HumanPelvis,
+            Bones.Closest
         };
 
         public Bones TargetBone
@@ -266,9 +273,18 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     System.Threading.Thread.Sleep(1000);
-                    if (Device.AutoConnectMakcu())
+                    if (Device.TryAutoConnect(App.Config.Makcu.LastComPort))
                     {
                         UpdateConnectionStatus();
+                        if (!string.IsNullOrWhiteSpace(App.Config.Makcu.LastComPort))
+                            return;
+
+                        try
+                        {
+                            // If we found a port through detection, remember it.
+                            App.Config.Makcu.LastComPort = Device.CurrentPortName;
+                        }
+                        catch { /* ignore */ }
                     }
                 });
             }

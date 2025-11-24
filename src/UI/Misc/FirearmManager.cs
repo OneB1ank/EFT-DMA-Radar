@@ -97,10 +97,12 @@ namespace LoneEftDmaRadar.UI.Misc
                             var pos = FireportTransform.UpdatePosition();
                             var rot = FireportTransform.GetRotation();
 
-                            ArgumentOutOfRangeException.ThrowIfGreaterThan(
-                                Vector3.Distance(pos, _localPlayer.Position),
-                                15f,
-                                nameof(FireportTransform));
+                            // If the fireport is implausibly far (common briefly during weapon swaps), drop and reacquire next tick.
+                            if (Vector3.Distance(pos, _localPlayer.Position) > 100f)
+                            {
+                                ResetFireport();
+                                return;
+                            }
 
                             FireportPosition = pos;
                             FireportRotation = rot; // ✅ Store rotation
@@ -117,6 +119,12 @@ namespace LoneEftDmaRadar.UI.Misc
                         {
                             FireportPosition = FireportTransform.UpdatePosition();
                             FireportRotation = FireportTransform.GetRotation();
+
+                            // Sanity: if it jumps far away, reset so we reacquire with the new weapon.
+                            if (Vector3.Distance(FireportPosition.Value, _localPlayer.Position) > 100f)
+                            {
+                                ResetFireport();
+                            }
                         }
                         catch
                         {

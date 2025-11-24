@@ -124,6 +124,8 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                 [ColorPickerOption.LocalPlayer] = SKColors.Green.ToString(),
                 [ColorPickerOption.FriendlyPlayer] = SKColors.LimeGreen.ToString(),
                 [ColorPickerOption.PMCPlayer] = SKColors.Red.ToString(),
+                [ColorPickerOption.PMCBear] = SKColors.Red.ToString(),
+                [ColorPickerOption.PMCUsec] = SKColors.Blue.ToString(),
                 [ColorPickerOption.WatchlistPlayer] = SKColors.HotPink.ToString(),
                 [ColorPickerOption.StreamerPlayer] = SKColors.MediumPurple.ToString(),
                 [ColorPickerOption.HumanScavPlayer] = SKColors.White.ToString(),
@@ -174,6 +176,14 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                             SKPaints.TextPMC.Color = skColor;
                             SKPaints.PaintAimviewWidgetPMC.Color = skColor;
                             SKPaints.TextPlayersOverlayPMC.Color = skColor.AdjustBrightness(0.5f);
+                            break;
+                        case ColorPickerOption.PMCBear:
+                            SKPaints.PaintPMCBear.Color = skColor;
+                            SKPaints.TextPMCBear.Color = skColor;
+                            break;
+                        case ColorPickerOption.PMCUsec:
+                            SKPaints.PaintPMCUsec.Color = skColor;
+                            SKPaints.TextPMCUsec.Color = skColor;
                             break;
                         case ColorPickerOption.WatchlistPlayer:
                             SKPaints.PaintWatchlist.Color = skColor;

@@ -502,6 +502,18 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             set { App.Config.UI.EspColorAI = value; OnPropertyChanged(); }
         }
 
+        public string EspColorRaiders
+        {
+            get => App.Config.UI.EspColorRaiders;
+            set { App.Config.UI.EspColorRaiders = value; OnPropertyChanged(); }
+        }
+
+        public string EspColorBosses
+        {
+            get => App.Config.UI.EspColorBosses;
+            set { App.Config.UI.EspColorBosses = value; OnPropertyChanged(); }
+        }
+
         public string EspColorLoot
         {
             get => App.Config.UI.EspColorLoot;
@@ -520,10 +532,16 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             set { App.Config.UI.EspColorCrosshair = value; OnPropertyChanged(); }
         }
 
-        public string EspColorHeadCircle
+        public string EspColorFactionBear
         {
-            get => App.Config.UI.EspColorHeadCircle;
-            set { App.Config.UI.EspColorHeadCircle = value; OnPropertyChanged(); }
+            get => App.Config.UI.EspColorFactionBear;
+            set { App.Config.UI.EspColorFactionBear = value; OnPropertyChanged(); }
+        }
+
+        public string EspColorFactionUsec
+        {
+            get => App.Config.UI.EspColorFactionUsec;
+            set { App.Config.UI.EspColorFactionUsec = value; OnPropertyChanged(); }
         }
         #endregion
 

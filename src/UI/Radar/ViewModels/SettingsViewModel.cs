@@ -81,8 +81,14 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
         private void OnOpenHotkeyManager()
         {
             HotkeyManagerIsEnabled = false;
+            bool wasEspVisible = UI.ESP.ESPWindow.ShowESP;
             try
             {
+                if (wasEspVisible)
+                {
+                    UI.ESP.ESPManager.HideESP();
+                }
+
                 var wnd = new HotkeyManagerWindow()
                 {
                     Owner = MainWindow.Instance
@@ -91,6 +97,10 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
             finally
             {
+                if (wasEspVisible)
+                {
+                    UI.ESP.ESPManager.ShowESP();
+                }
                 HotkeyManagerIsEnabled = true;
             }
         }

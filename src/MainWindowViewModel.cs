@@ -91,7 +91,7 @@ namespace LoneEftDmaRadar
             toggleShowFood.HotkeyStateChanged += ToggleShowFood_HotkeyStateChanged;
             var toggleShowMeds = new HotkeyActionController("Toggle Show Meds");
             toggleShowMeds.HotkeyStateChanged += ToggleShowMeds_HotkeyStateChanged;
-            var engageAimbotMakcu = new HotkeyActionController("Engage Makcu Aim");
+            var engageAimbotMakcu = new HotkeyActionController("Engage Aimbot");
             engageAimbotMakcu.HotkeyStateChanged += EngageAimbotMakcu_HotkeyStateChanged;
             
             var toggleESP = new HotkeyActionController("Toggle ESP Overlay");

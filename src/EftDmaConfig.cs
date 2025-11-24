@@ -136,12 +136,14 @@ namespace LoneEftDmaRadar
         /// Settings for Makcu Aim.
         /// </summary>
         [JsonPropertyName("makcu")]
+        [JsonInclude]
         public MakcuConfig Makcu { get; private set; } = new();
 
         /// <summary>
         /// Settings for memory write based features.
         /// </summary>
         [JsonPropertyName("memWrites")]
+        [JsonInclude]
         public MemWritesConfig MemWrites { get; private set; } = new();
 
         /// <summary>
@@ -775,6 +777,12 @@ namespace LoneEftDmaRadar
         [JsonPropertyName("espColorAI")]
         public string EspColorAI { get; set; } = "#FFFFA500";
 
+        [JsonPropertyName("espColorRaiders")]
+        public string EspColorRaiders { get; set; } = "#FFFFC70F";
+
+        [JsonPropertyName("espColorBosses")]
+        public string EspColorBosses { get; set; } = "#FFFF00FF";
+
         [JsonPropertyName("espColorLoot")]
         public string EspColorLoot { get; set; } = "#FFD0D0D0";
 
@@ -784,8 +792,16 @@ namespace LoneEftDmaRadar
         [JsonPropertyName("espColorCrosshair")]
         public string EspColorCrosshair { get; set; } = "#FFFFFFFF";
 
-        [JsonPropertyName("espColorHeadCircle")]
-        public string EspColorHeadCircle { get; set; } = "#FFFFFFFF";
+        /// <summary>
+        /// ESP faction color for BEAR PMCs (ESP only, not radar).
+        /// </summary>
+        [JsonPropertyName("espColorFactionBear")]
+        public string EspColorFactionBear { get; set; } = "#FFFF0000";
+        /// <summary>
+        /// ESP faction color for USEC PMCs (ESP only, not radar).
+        /// </summary>
+        [JsonPropertyName("espColorFactionUsec")]
+        public string EspColorFactionUsec { get; set; } = "#FF0000FF";
 
         /// <summary>
         /// Radar Max FPS (0 = unlimited). Lowering this can free headroom for ESP.
@@ -940,6 +956,11 @@ namespace LoneEftDmaRadar
 
         // Debug
         public bool ShowDebug { get; set; } = true;
+
+        /// <summary>
+        /// Smoothing factor for Makcu device aim. 1 = instant, higher = slower/smoother.
+        /// </summary>
+        public float Smoothing { get; set; } = 1.0f;
 
         // Targeting
         public Bones TargetBone { get; set; } = Bones.HumanHead;
