@@ -173,7 +173,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         /// <summary>
         /// True if the Player is Active (in the player list).
         /// </summary>
-        public bool IsActive { get; private set; } = true;
+        public bool IsActive { get; private set; }
 
         /// <summary>
         /// Type of player unit.
@@ -224,7 +224,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         public PlayerSkeleton Skeleton { get; protected set; }
         protected int _verticesCount;
         private bool _skeletonErrorLogged;
-        private int _transformFailureCount;
 
         /// <summary>
         /// TRUE if critical memory reads (position/rotation) have failed.
@@ -519,7 +518,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                     }
                                     _verticesCount = 0; // force re-request next loop
                                     successPos = false;
-                                    _transformFailureCount++;
                                     return;
                                 }
 
@@ -531,7 +529,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                 {
                                     // Invalid position - don't update bones, keep previous position
                                     successPos = false;
-                                    _transformFailureCount++;
                                 }
                                 else
                                 {
@@ -540,13 +537,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                         bone.UpdatePosition(vertices.Span);
                                     }
                                     _skeletonErrorLogged = false;
-                                    _transformFailureCount = 0; // Reset on success
-
-                                    // Re-enable player after successful position update (in case it was disabled due to errors)
-                                    if (!IsActive && IsAlive)
-                                    {
-                                        IsActive = true;
-                                    }
                                 }
                             }
                             catch (ArgumentOutOfRangeException ex)
@@ -557,7 +547,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                     _skeletonErrorLogged = true;
                                 }
                                 successPos = false;
-                                _transformFailureCount++;
                                 return;
                             }
                             catch (Exception ex) // Attempt to re-allocate Transform on error
@@ -567,7 +556,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                     DebugLogger.LogDebug($"ERROR getting Player '{Name}' SkeletonRoot Position: {ex}");
                                     _skeletonErrorLogged = true;
                                 }
-                                _transformFailureCount++;
                                 try
                                 {
                                     var transform = new UnityTransform(SkeletonRoot.TransformInternal);
@@ -575,12 +563,8 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                 }
                                 catch
                                 {
-                                    // Only mark as inactive after multiple consecutive failures
-                                    // This prevents flickering when players have temporary read failures
-                                    if (_transformFailureCount > 10)
-                                    {
-                                        IsActive = false;
-                                    }
+                                    // If transform re-allocation also fails, we have stale skeleton data
+                                    // Don't mark as inactive - skeleton should be optional for ESP/radar
                                 }
                                 successPos = false;
                             }
@@ -588,7 +572,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                         catch
                         {
                             successPos = false;
-                            _transformFailureCount++;
                         }
                     }
                 }
