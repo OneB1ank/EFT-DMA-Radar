@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows7.0</TargetFramework>
+    <AssemblyName>Moulman-EFT-DMA-Radar</AssemblyName>
     <RootNamespace>LoneEftDmaRadar</RootNamespace>
     <Nullable>warnings</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

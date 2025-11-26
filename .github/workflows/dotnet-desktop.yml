@@ -19,41 +19,10 @@ concurrency:
 jobs:
   build:
     name: Build & Deploy
-    if: github.repository_owner == 'lone-dma' ## If you remove this change the Velopack packId from 'github.lonedma.eft' below.
+    if: github.repository_owner == 'moulmandev' ## If you remove this change the Velopack packId from 'github.moulmandev.eft' below.
     runs-on: windows-latest
-    environment: production
 
     steps:
-      - name: Send Discord Webhook
-        shell: pwsh
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          REPO: ${{ github.repository }}
-          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          $payload = @{
-            username = "GitHub Actions"
-            embeds = @(
-              @{
-                title = "$env:REPO"
-                description = "🚀 Build started"
-                color = 5814783
-                fields = @(
-                  @{
-                    name  = "Commit"
-                    value = $env:COMMIT_MESSAGE
-                  },
-                  @{
-                    name  = "Job Link"
-                    value = $env:JOB_URL
-                  }
-                )
-              }
-            )
-          } | ConvertTo-Json -Depth 5
-          Invoke-RestMethod -Uri $env:WEBHOOK -Method Post -ContentType "application/json" -Body $payload
-          
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -68,6 +37,7 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
+            9.0.x
             10.0.x
 
       - name: Install Velopack CLI
@@ -98,11 +68,11 @@ jobs:
       - name: Pack with Velopack
         run: |
           vpk pack `
-            --packId github.lonedma.eft `
+            --packId github.moulmandev.eft `
             --packVersion "${{ steps.nbgv.outputs.SemVer2 }}" `
             --packDir "out" `
-            --mainExe "Lone-EFT-DMA-Radar.exe" `
-            --packTitle "Lone EFT DMA Radar" `
+            --mainExe "Moulman-EFT-DMA-Radar.exe" `
+            --packTitle "Moulman's EFT DMA Radar" `
             --icon "Resources/lone-icon.ico"
 
       - name: Upload to GitHub Releases
@@ -116,3 +86,39 @@ jobs:
             --tag "v${{ steps.nbgv.outputs.SemVer2 }}" `
             --targetCommitish "${{ github.sha }}" `
             --token "$env:GITHUB_TOKEN"
+
+      - name: Send Discord Release Notification
+        shell: pwsh
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.nbgv.outputs.SemVer2 }}
+          DOWNLOAD_URL: https://github.com/${{ github.repository }}/releases/download/v${{ steps.nbgv.outputs.SemVer2 }}/github.lonedma.eft-${{ steps.nbgv.outputs.SemVer2 }}-win-x64.zip
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          $payload = @{
+            username = "GitHub Actions"
+            embeds = @(
+              @{
+                title = "🚀 New Release"
+                description = "**Version ${{ steps.nbgv.outputs.SemVer2 }}** is now available!"
+                color = 5763719
+                fields = @(
+                  @{
+                    name  = "📦 Download"
+                    value = "[Direct Download]($env:DOWNLOAD_URL)"
+                  },
+                  @{
+                    name  = "🔗 Release Page"
+                    value = "[View on GitHub]($env:RELEASE_URL)"
+                  },
+                  @{
+                    name  = "📝 Latest Changes"
+                    value = $env:COMMIT_MESSAGE
+                  }
+                )
+                timestamp = (Get-Date -Format "o")
+              }
+            )
+          } | ConvertTo-Json -Depth 5
+          Invoke-RestMethod -Uri $env:WEBHOOK -Method Post -ContentType "application/json" -Body $payload
