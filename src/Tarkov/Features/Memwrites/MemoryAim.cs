@@ -139,16 +139,13 @@ namespace LoneEftDmaRadar.Tarkov.Features.MemWrites
                 Vector2 delta = aimAngle - viewAngles;
                 NormalizeAngle(ref delta);
 
-                // 4) Convert to gun angle format (radians, clamped)
+                // 4) Convert to gun angle format (radians)
+                // No clamping - silent aim should redirect to exact target
                 var gunAngle = new Vector3(
                     DegToRad(delta.X),
                     0.0f,
                     DegToRad(delta.Y)
                 );
-                
-                const float maxRad = 0.35f; // ~20 degrees max offset
-                gunAngle.X = Math.Clamp(gunAngle.X, -maxRad, maxRad);
-                gunAngle.Z = Math.Clamp(gunAngle.Z, -maxRad, maxRad);
 
                 // 5) Write to _shotDirection
                 var shotDirectionAddr = localPlayer.PWA + Offsets.ProceduralWeaponAnimation._shotDirection;
