@@ -913,17 +913,15 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
 
         #region Interfaces
 
-        public void Draw(SKCanvas canvas, EftMapParams mapParams, LocalPlayer localPlayer, Vector3? referencePosition = null, bool isFollowTarget = false)
+        public void Draw(SKCanvas canvas, EftMapParams mapParams, LocalPlayer localPlayer)
         {
-            DrawInternal(canvas, mapParams, localPlayer, referencePosition, isFollowTarget);
+            DrawReference(canvas, mapParams, localPlayer, localPlayer.Position, false);
         }
 
-        void IMapEntity.Draw(SKCanvas canvas, EftMapParams mapParams, LocalPlayer localPlayer)
-        {
-            DrawInternal(canvas, mapParams, localPlayer, null, false);
-        }
-
-        private void DrawInternal(SKCanvas canvas, EftMapParams mapParams, LocalPlayer localPlayer, Vector3? referencePosition, bool isFollowTarget)
+        /// <summary>
+        /// Draw this Entity on the Radar with custom reference position.
+        /// </summary>
+        public void DrawReference(SKCanvas canvas, EftMapParams mapParams, LocalPlayer localPlayer, Vector3 referencePosition, bool isFollowTarget = false)
         {
             try
             {
@@ -939,7 +937,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                     if (this == localPlayer)
                         return;
                     var height = Position.Y - localPlayer.ReferenceHeight;
-                    var refPos = referencePosition ?? localPlayer.Position;
+                    var refPos = referencePosition;
                     var dist = Vector3.Distance(refPos, Position);
                     var roundedHeight = (int)Math.Round(height);
                     var roundedDist = (int)Math.Round(dist);
