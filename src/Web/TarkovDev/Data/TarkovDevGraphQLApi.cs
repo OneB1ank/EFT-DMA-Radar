@@ -90,7 +90,7 @@ namespace LoneEftDmaRadar.Web.TarkovDev.Data
                             position {x,y,z}
                         }
                     }
-                    items { 
+                    items(lang:zh) { 
                         id 
                         name 
                         shortName 
@@ -111,7 +111,7 @@ namespace LoneEftDmaRadar.Web.TarkovDev.Data
                             name 
                         } 
                     }
-                    lootContainers { 
+                    lootContainers(lang:zh) { 
                         id 
                         normalizedName 
                         name 
