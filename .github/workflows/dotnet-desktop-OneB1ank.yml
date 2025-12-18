@@ -18,7 +18,7 @@ concurrency:
 jobs:
   build:
     name: Build & Deploy
-    if: github.repository_owner == 'moulmandev' ## If you remove this change the Velopack packId from 'github.moulmandev.eft' below.
+    if: github.repository_owner == 'OneB1ank' ## If you remove this change the Velopack packId from 'github.moulmandev.eft' below.
     runs-on: windows-latest
 
     steps:
