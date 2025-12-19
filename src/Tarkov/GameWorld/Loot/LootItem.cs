@@ -90,26 +90,43 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Loot
         {
             get
             {
-                long price;
-                if (Config.Loot.PricePerSlot)
+                long flea = _item.FleaPrice;
+                long trader = _item.TraderPrice;
+                long selected;
+
+                switch (Config.Loot.PriceMode)
                 {
-                    if (Config.Loot.PriceMode is LootPriceMode.FleaMarket)
-                        price = (long)((float)_item.FleaPrice / GridCount);
-                    else
-                        price = (long)((float)_item.TraderPrice / GridCount);
+                    case LootPriceMode.FleaMarket:
+                        selected = Config.Loot.PricePerSlot ? (long)((float)flea / GridCount) : flea;
+                        break;
+                    case LootPriceMode.Trader:
+                        selected = Config.Loot.PricePerSlot ? (long)((float)trader / GridCount) : trader;
+                        break;
+                    case LootPriceMode.Smart:
+                        // choose the highest available price between flea and trader
+                        if (Config.Loot.PricePerSlot)
+                        {
+                            var fleaPer = (long)((float)flea / GridCount);
+                            var traderPer = (long)((float)trader / GridCount);
+                            selected = Math.Max(fleaPer, traderPer);
+                        }
+                        else
+                        {
+                            selected = Math.Max(flea, trader);
+                        }
+                        break;
+                    default:
+                        selected = flea;
+                        break;
                 }
-                else
+
+                // fallback if selected price is not positive
+                if (selected <= 0)
                 {
-                    if (Config.Loot.PriceMode is LootPriceMode.FleaMarket)
-                        price = _item.FleaPrice;
-                    else
-                        price = _item.TraderPrice;
+                    selected = Math.Max(flea, trader);
                 }
-                if (price <= 0)
-                {
-                    price = Config.Loot.PriceMode is LootPriceMode.FleaMarket ? _item.FleaPrice : _item.TraderPrice;
-                }
-                return (int)price;
+
+                return (int)selected;
             }
         }
 

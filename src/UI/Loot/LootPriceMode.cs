@@ -37,6 +37,10 @@ namespace LoneEftDmaRadar.UI.Loot
         /// <summary>
         /// Highest Trader Price.
         /// </summary>
-        Trader = 1
+        Trader = 1,
+        /// <summary>
+        /// Smart: choose the highest available price between Flea and Trader.
+        /// </summary>
+        Smart = 2
     }
 }

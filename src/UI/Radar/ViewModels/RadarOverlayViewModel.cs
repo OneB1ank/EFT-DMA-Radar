@@ -168,6 +168,20 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public bool IsSmartPrices
+        {
+            get => App.Config.Loot.PriceMode == LootPriceMode.Smart;
+            set
+            {
+                if (value && App.Config.Loot.PriceMode != LootPriceMode.Smart)
+                {
+                    App.Config.Loot.PriceMode = LootPriceMode.Smart;
+                    OnPropertyChanged(nameof(IsFleaPrices));
+                    OnPropertyChanged(nameof(IsTraderPrices));
+                }
+            }
+        }
+
         public bool HideCorpses
         {
             get => App.Config.Loot.HideCorpses;
