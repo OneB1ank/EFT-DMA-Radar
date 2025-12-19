@@ -17,7 +17,7 @@
         <StackPanel Orientation="Vertical"
                     Margin="0,0,0,10">
             <!-- Radar Settings -->
-            <GroupBox Header="Radar Settings"
+            <GroupBox Header="雷达设置"
                       Margin="0,0,0,12">
                 <StackPanel>
 
@@ -25,34 +25,34 @@
                     <TextBlock TextWrapping="Wrap"
                                Margin="0,0,0,12"
                                FontStyle="Italic">
-Zoom In: F1 / Mouse Wheel Up<LineBreak />
-Zoom Out: F2 / Mouse Wheel Down<LineBreak />
-Toggle Fullscreen: F11
+放大: F1 / 鼠标滚轮向上<LineBreak />
+缩小: F2 / 鼠标滚轮向下<LineBreak />
+切换全屏: F11
                     </TextBlock>
 
                     <!-- buttons -->
                     <WrapPanel Margin="0,0,0,12">
-                        <Button Content="Restart Radar"
-                                ToolTip="Restarts the Radar for the current raid instance. Can be useful if stuck on 'waiting for raid start' or the raid is not functioning properly."
+                        <Button Content="重启雷达"
+                                ToolTip="为当前突袭实例重启雷达。如果卡在 '等待突袭开始' 或突袭未正常工作时可能有用。"
                                 Command="{Binding RestartRadarCommand}"
                                 MinWidth="100"
                                 Height="35"
                                 Margin="0,0,8,8" />
-                        <Button Content="Color Picker"
-                                ToolTip="Allows customizing entity colors on the Radar UI."
+                        <Button Content="颜色选择器"
+                                ToolTip="允许自定义雷达 UI 上实体的颜色。"
                                 IsEnabled="{Binding ColorPickerIsEnabled}"
                                 Command="{Binding OpenColorPickerCommand}"
                                 MinWidth="100"
                                 Height="35"
                                 Margin="0,0,8,8" />
-                        <Button Content="Open Config"
-                                ToolTip="Opens the config folder."
+                        <Button Content="打开配置文件夹"
+                                ToolTip="打开配置文件夹。"
                                 Command="{Binding OpenConfigCommand}"
                                 MinWidth="100"
                                 Height="35"
                                 Margin="0,0,8,8" />
-                        <Button Content="Backup Config"
-                                ToolTip="Backs up your configuration (Recommended)."
+                        <Button Content="备份配置"
+                                ToolTip="备份您的配置（推荐）。"
                                 Command="{Binding BackupConfigCommand}"
                                 MinWidth="100"
                                 Height="35"
@@ -64,9 +64,9 @@ Toggle Fullscreen: F11
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center"
                                     Margin="0,0,16,8">
-                            <TextBlock Text="UI Scale"
+                            <TextBlock Text="界面缩放"
                                        VerticalAlignment="Center"
-                                       ToolTip="Sets the scaling factor for the Radar/User Interface. For high‑resolution monitors you may want to increase this." />
+                                       ToolTip="设置雷达/用户界面的缩放系数。对于高分辨率显示器您可能想增加此值。" />
                             <Slider x:Name="UIScaleSlider"
                                     Width="150"
                                     Margin="8,0"
@@ -83,7 +83,7 @@ Toggle Fullscreen: F11
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center"
                                     Margin="0,0,16,8">
-                            <TextBlock Text="Radar Max FPS (0 = Unlimited)"
+                            <TextBlock Text="雷达最大FPS (0 = 无限)"
                                        VerticalAlignment="Center" />
                             <Slider x:Name="RadarFpsSlider"
                                     Width="180"
@@ -103,39 +103,39 @@ Toggle Fullscreen: F11
 
                     <!-- toggles -->
                     <WrapPanel>
-                        <CheckBox Content="Show Map Setup Helper"
-                                  ToolTip="Toggles the 'Map Setup Helper' to assist with getting Map Bounds/Scaling"
+                        <CheckBox Content="显示地图设置助手"
+                                  ToolTip="切换“地图设置助手”，以协助获取地图边界/缩放"
                                   IsChecked="{Binding ShowMapSetupHelper, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Aimview Widget"
-                                  ToolTip="Toggles the Aimview 'Widget' that gives you a Pseudo ESP in the radar window. Can be moved."
+                        <CheckBox Content="瞄准视图小部件"
+                                  ToolTip="切换瞄准视图小部件，为您提供雷达窗口的伪ESP。可以移动。"
                                   IsChecked="{Binding AimviewWidget, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Player Info Widget"
-                                  ToolTip="Toggles the Player Info 'Widget' that gives you information about the players/bosses in your raid. Can be moved."
+                        <CheckBox Content="玩家信息小部件"
+                                  ToolTip="切换玩家信息小部件，提供关于突袭中玩家/Boss的信息。可以移动。"
                                   IsChecked="{Binding PlayerInfoWidget, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Connect Groups"
-                                  ToolTip="Connects players that are grouped up via semi‑transparent green lines. Does not apply to your own party."
+                        <CheckBox Content="连接队伍"
+                                  ToolTip="通过半透明绿色线连接分组的玩家。不适用于您自己的队伍。"
                                   IsChecked="{Binding ConnectGroups, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Hide Names"
-                                  ToolTip="Hides human player names from displaying in the Radar or Player Info Widget. Instead will show the (Height,Distance)."
+                        <CheckBox Content="隐藏名字"
+                                  ToolTip="在雷达或玩家信息小部件中隐藏人类玩家名字。取而代之显示(高度,距离)。"
                                   IsChecked="{Binding HideNames, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Show Mines"
+                        <CheckBox Content="显示地雷"
                                   IsChecked="{Binding ShowMines, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Teammate Aimlines"
-                                  ToolTip="When enabled makes teammate aimlines the same length as the main player."
+                        <CheckBox Content="队友瞄准线"
+                                  ToolTip="启用时使队友的瞄准线与主玩家相同长度。"
                                   IsChecked="{Binding TeammateAimlines, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="AI Aimlines"
-                                  ToolTip="Enables dynamic aimlines for AI Players. When you are being aimed at the aimlines will extend."
+                        <CheckBox Content="AI瞄准线"
+                                  ToolTip="为AI玩家启用动态瞄准线。当有人瞄准您时瞄准线会延长。"
                                   IsChecked="{Binding AIAimlines, Mode=TwoWay}"
                                   Margin="0,0,0,8" />
-                        <CheckBox Content="Mark Sus Players"
-                                  ToolTip="Marks players as suspicious based on certain criteria (K/D, S/R, etc.)"
+                        <CheckBox Content="标记可疑玩家"
+                                  ToolTip="根据某些标准（K/D、存活率等）标记可疑玩家。"
                                   IsChecked="{Binding MarkSusPlayers, Mode=TwoWay}"
                                   Margin="0,0,0,8" />
                     </WrapPanel>
@@ -144,9 +144,9 @@ Toggle Fullscreen: F11
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center"
                                 Margin="0,8,0,8">
-                        <TextBlock Text="Widget Font Size"
+                        <TextBlock Text="小部件字体大小"
                                    VerticalAlignment="Center"
-                                   ToolTip="Font size for loot height indicators (▲▼●) and other radar widgets." />
+                                   ToolTip="掉落高度指示器(▲▼●)和其他雷达小部件的字体大小。" />
                         <Slider x:Name="WidgetFontSizeSlider"
                                 Width="150"
                                 Margin="8,0"
@@ -166,16 +166,16 @@ Toggle Fullscreen: F11
             </GroupBox>
 
             <!-- Loot -->
-            <GroupBox Header="Loot"
+            <GroupBox Header="掉落"
                       Margin="0,0,0,12">
                 <StackPanel>
                     <WrapPanel Margin="0,0,0,8">
-                        <CheckBox Content="Show Loot (F3)"
-                                  ToolTip="Toggles displaying Loot on the Radar/ESP."
+                        <CheckBox Content="显示掉落 (F3)"
+                                  ToolTip="切换在雷达/ESP上显示掉落。"
                                   IsChecked="{Binding ShowLoot, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Show Static Containers"
-                                  ToolTip="Shows static containers on the map/ESP."
+                        <CheckBox Content="显示静态容器"
+                                  ToolTip="在地图/ESP上显示静态容器。"
                                   IsChecked="{Binding ShowStaticContainers, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                     </WrapPanel>
@@ -184,7 +184,7 @@ Toggle Fullscreen: F11
                                 VerticalAlignment="Center"
                                 Margin="0,0,16,8"
                                 IsEnabled="{Binding ShowStaticContainers}">
-                        <TextBlock Text="Container Distance"
+                        <TextBlock Text="容器距离"
                                    VerticalAlignment="Center" />
                         <Slider x:Name="ContainerDistSlider"
                                 Width="150"

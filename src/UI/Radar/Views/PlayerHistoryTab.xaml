@@ -33,19 +33,19 @@
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name"
+                <DataGridTextColumn Header="姓名"
                                     Binding="{Binding Profile.Name}"
                                     Width="Auto"
                                     MinWidth="250" />
-                <DataGridTextColumn Header="Account ID"
+                <DataGridTextColumn Header="账号 ID"
                                     Binding="{Binding Profile.AccountID}"
                                     Width="Auto"
                                     MinWidth="80" />
-                <DataGridTextColumn Header="Acct"
+                <DataGridTextColumn Header="帐号"
                                     Binding="{Binding Profile.Acct}"
                                     Width="Auto"
                                     MinWidth="50" />
-                <DataGridTextColumn Header="Type"
+                <DataGridTextColumn Header="类型"
                                     Binding="{Binding Profile.PlayerSide}"
                                     Width="Auto"
                                     MinWidth="100" />
@@ -53,23 +53,23 @@
                                     Binding="{Binding Profile.Overall_KD, StringFormat={}{0:N1}}"
                                     Width="Auto"
                                     MinWidth="50" />
-                <DataGridTextColumn Header="Total Hours"
+                <DataGridTextColumn Header="总时长"
                                     Binding="{Binding Profile.Hours}"
                                     Width="Auto"
                                     MinWidth="60" />
-                <DataGridTextColumn Header="Raids"
+                <DataGridTextColumn Header="突袭次数"
                                     Binding="{Binding Profile.RaidCount}"
                                     Width="Auto"
                                     MinWidth="50" />
-                <DataGridTextColumn Header="S/R %"
+                <DataGridTextColumn Header="存活率 %"
                                     Binding="{Binding Profile.SurvivedRate, StringFormat={}{0:N1}}"
                                     Width="Auto"
                                     MinWidth="50" />
-                <DataGridTextColumn Header="Group"
+                <DataGridTextColumn Header="队伍"
                                     Binding="{Binding Profile.GroupID}"
                                     Width="Auto"
                                     MinWidth="50" />
-                <DataGridTextColumn Header="Alerts"
+                <DataGridTextColumn Header="警告"
                                     Binding="{Binding Profile.Alerts}"
                                     Width="Auto"
                                     MinWidth="80" />

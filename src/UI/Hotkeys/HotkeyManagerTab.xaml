@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              Padding="10"
              PreviewKeyDown="OnPreviewKeyDown"
-             Focusable="True">
+             Focusable="True" d:DesignWidth="276.021">
     <UserControl.Resources>
         <vm:BooleanToBrushConverter x:Key="BooleanToBrushConverter">
             <vm:BooleanToBrushConverter.TrueBrush>
@@ -47,22 +47,17 @@
                    FontSize="16"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource TextBrush}"
-                   Text="Keybind Manager" />
+                   Text="按键管理" />
 
         <!-- Instructions -->
         <GroupBox Grid.Row="1"
-                  Header="How to bind keys"
+                  Header="如何绑定按键"
                   Margin="0,0,0,12"
                   Foreground="{StaticResource TextBrush}">
             <TextBlock TextWrapping="Wrap"
                        Margin="5"
                        FontStyle="Italic"
-                       Foreground="{StaticResource SubtleBrush}">
-                Click on any action or key cell to start listening for input<LineBreak/>
-                Press any keyboard key or mouse button to bind it<LineBreak/>
-                Press <Bold>ESC</Bold> to cancel binding<LineBreak/>
-                Click <Bold>Clear</Bold> to unbind an action
-            </TextBlock>
+                       Foreground="{StaticResource SubtleBrush}"><Run Text="点击任意动作或关键单元格开始监听输入"/><LineBreak/><Run Text="按下任意键盘键或鼠标按钮进行绑定"/><LineBreak/><Run Text="按下取消绑定"/><LineBreak/><Run Text="点击取消动作绑定"/></TextBlock>
         </GroupBox>
 
         <!-- Column Headers -->
@@ -74,17 +69,17 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0"
-                       Text="Action"
+                       Text="动作"
                        FontWeight="SemiBold"
                        Foreground="{StaticResource TextBrush}"
                        Margin="8,0,0,0"/>
             <TextBlock Grid.Column="1"
-                       Text="Keybind"
+                       Text="按键"
                        FontWeight="SemiBold"
                        Foreground="{StaticResource TextBrush}"
                        Margin="8,0,0,0"/>
             <TextBlock Grid.Column="2"
-                       Text="Reset"
+                       Text="重置"
                        FontWeight="SemiBold"
                        Foreground="{StaticResource TextBrush}"
                        Margin="8,0,0,0"
@@ -173,7 +168,7 @@
 
                                 <!-- Clear Button -->
                                 <Button Grid.Column="2"
-                                        Content="Clear"
+                                        Content="清除"
                                         Click="OnClearBindingClick"
                                         MinWidth="70"
                                         HorizontalAlignment="Center"

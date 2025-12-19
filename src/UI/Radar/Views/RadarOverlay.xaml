@@ -32,7 +32,7 @@
                               Margin="0,0,4,0" />
                 <ToggleButton x:Name="LootToggle"
                               Visibility="{Binding IsLootButtonVisible, Converter={StaticResource BoolToVis}}"
-                              Content="Loot"
+                              Content="掉落"
                               IsChecked="{Binding IsLootOverlayVisible}"
                               Padding="6,2" />
             </StackPanel>
@@ -62,12 +62,12 @@
                 VerticalAlignment="Top"
                 Margin="8,40,0,0">
             <StackPanel>
-                <TextBlock Text="Loot"
+                <TextBlock Text="掉落"
                            Foreground="White"
                            FontWeight="Bold"
                            FontSize="14" />
 
-                <TextBlock Text="Sort by Ruble Value"
+                <TextBlock Text="按卢布价值排序"
                            Foreground="White"
                            Margin="0,8,0,4" />
 
@@ -81,14 +81,14 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
-                               Text="Regular"
+                               Text="普通"
                                Foreground="White"
                                VerticalAlignment="Center" />
                     <TextBox Grid.Column="1"
                              Text="{Binding RegularValue, UpdateSourceTrigger=PropertyChanged}"
                              MinWidth="100" />
                     <TextBlock Grid.Column="2"
-                               Text="Valuable"
+                               Text="贵重"
                                Foreground="White"
                                VerticalAlignment="Center"
                                Margin="12,0,0,0" />
@@ -96,7 +96,7 @@
                              Text="{Binding ValuableValue, UpdateSourceTrigger=PropertyChanged}"
                              MinWidth="100" />
                     <CheckBox Grid.Column="4"
-                              Content="Price Per Slot"
+                              Content="按格计价"
                               IsChecked="{Binding PricePerSlot}"
                               Foreground="White"
                               Margin="12,0,0,0" />
@@ -104,13 +104,13 @@
 
                 <StackPanel Orientation="Horizontal"
                             Margin="0,0,0,8">
-                    <RadioButton Content="Flea Prices"
-                                 ToolTip="Use flea market prices"
+                    <RadioButton Content="跳蚤市场价格"
+                                 ToolTip="使用跳蚤市场价格"
                                  IsChecked="{Binding IsFleaPrices, Mode=TwoWay}"
                                  GroupName="PriceSource"
                                  Foreground="White" />
-                    <RadioButton Content="Trader Prices"
-                                 ToolTip="Use trader prices"
+                    <RadioButton Content="商人价格"
+                                 ToolTip="使用商人价格"
                                  IsChecked="{Binding IsTraderPrices, Mode=TwoWay}"
                                  GroupName="PriceSource"
                                  Foreground="White"
@@ -118,28 +118,28 @@
                 </StackPanel>
 
                 <WrapPanel Margin="0,0,0,8">
-                    <CheckBox Content="Hide Corpses"
+                    <CheckBox Content="隐藏尸体"
                               IsChecked="{Binding HideCorpses}"
                               Foreground="White"
                               Margin="0,0,12,0" />
-                    <CheckBox Content="Show Meds"
+                    <CheckBox Content="显示药品"
                               IsChecked="{Binding ShowMeds}"
                               Foreground="White"
                               Margin="0,0,12,0" />
-                    <CheckBox Content="Show Food"
+                    <CheckBox Content="显示食物"
                               IsChecked="{Binding ShowFood}"
                               Foreground="White"
                               Margin="0,0,12,0" />
-                    <CheckBox Content="Show Backpacks"
+                    <CheckBox Content="显示背包"
                               IsChecked="{Binding ShowBackpacks}"
                               Foreground="White"
                               Margin="0,0,12,0" />
-                    <CheckBox Content="Show Quest Items"
+                    <CheckBox Content="显示任务物品"
                               IsChecked="{Binding ShowQuestItems}"
                               Foreground="White" />
                 </WrapPanel>
 
-                <TextBlock Text="Loot Search (ex: Item1,Item2,etc.)"
+                <TextBlock Text="掉落搜索（例如：Item1,Item2 等）"
                            Foreground="White"
                            Margin="0,8,0,4" />
                 <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=300}"

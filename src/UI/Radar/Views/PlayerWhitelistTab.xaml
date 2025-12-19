@@ -20,9 +20,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Whitelist Count: " FontWeight="Bold"/>
+            <TextBlock Text="白名单 数量： " FontWeight="Bold"/>
             <TextBlock Text="{Binding WhitelistCount}" FontWeight="Bold"/>
-            <TextBlock Text=" players" Margin="5,0,0,0"/>
+            <TextBlock Text=" 位玩家" Margin="5,0,0,0"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1"
@@ -38,13 +38,13 @@
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Account ID"
+                <DataGridTextColumn Header="账号 ID"
                                     Binding="{Binding AcctID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     Width="150" />
-                <DataGridTextColumn Header="Custom Name"
+                <DataGridTextColumn Header="自定义 名称"
                                     Binding="{Binding CustomName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     Width="200" />
-                <DataGridTextColumn Header="Timestamp"
+                <DataGridTextColumn Header="时间戳"
                                     Binding="{Binding Timestamp, StringFormat={}{0:g}}"
                                     IsReadOnly="True"
                                     Width="150" />

@@ -15,24 +15,24 @@
     <StackPanel Orientation="Vertical"
                 Margin="0,0,0,10"
                 HorizontalAlignment="Left">
-        <TextBlock Text="Debug Utilities"
+        <TextBlock Text="调试工具"
                    FontSize="16"
                    Margin="0,0,0,8" />
 
-        <Button Content="Toggle Debug Console"
+        <Button Content="切换调试控制台"
                 Width="200"
                 Height="36"
                 Command="{Binding ToggleDebugConsoleCommand}"
-                ToolTip="Shows or hides the console-based DebugLogger output." />
+                ToolTip="显示或隐藏基于控制台的调试日志输出。" />
 
-        <GroupBox Header="DeviceAimbot Aimbot Debug"
+        <GroupBox Header="设备自瞄 调试"
                   Margin="0,12,0,0"
                   Width="380">
             <StackPanel>
-                <CheckBox Content="Show Debug Overlay (ESP)"
+                <CheckBox Content="显示调试覆盖 (ESP)"
                           IsChecked="{Binding ShowDeviceAimbotDebug, Mode=TwoWay}"
                           Margin="6,6,6,2"
-                          ToolTip="Shows detailed debug information on the ESP overlay"/>
+                          ToolTip="在 ESP 覆盖层上显示详细的调试信息"/>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Height="200" Margin="0,4,0,0">
                     <TextBlock Text="{Binding DeviceAimbotDebugText}"
                                FontFamily="Consolas"

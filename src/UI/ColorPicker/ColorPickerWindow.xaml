@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:LoneEftDmaRadar.UI.ColorPicker"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Radar Color Picker"
+        Title="雷达 颜色选择器"
         Height="200" Width="450"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -25,7 +25,7 @@
 
         <!-- combo + picker + hex -->
         <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,10">
-            <TextBlock Text="Select Color:" VerticalAlignment="Center"/>
+            <TextBlock Text="选择颜色：" VerticalAlignment="Center"/>
             <ComboBox ItemsSource="{Binding Options}"
                       SelectedItem="{Binding SelectedOption}" ScrollViewer.VerticalScrollBarVisibility="Auto"
                       Width="140"
@@ -43,7 +43,7 @@
         <Border Grid.Row="1"/>
 
         <!-- save -->
-        <Button Content="Close"
+        <Button Content="关闭"
                 Command="{Binding CloseCommand}"
                 Grid.Row="2"
                 Width="100"

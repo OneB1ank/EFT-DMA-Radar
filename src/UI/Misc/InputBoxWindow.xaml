@@ -43,13 +43,13 @@
                 HorizontalAlignment="Right"
                 Margin="5">
             <Button x:Name="OkButton"
-              Content="OK"
+              Content="确认"
               Width="75"
               Margin="5"
               IsDefault="True"
               Command="{Binding OkCommand}"/>
             <Button x:Name="CancelButton"
-              Content="Cancel"
+              Content="取消"
               Width="75"
               Margin="5"
               IsCancel="True"

@@ -20,10 +20,10 @@
     
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <UniformGrid Columns="2" Rows="0" Margin="0,0,0,10" HorizontalAlignment="Stretch">
-            <!-- Device Connection -->
-            <GroupBox Header="Device Connection" Margin="0,0,12,12">
+            <!-- 设备连接 -->
+            <GroupBox Header="设备连接" Margin="0,0,12,12">
                 <StackPanel>
-                    <TextBlock Text="Status:" FontWeight="Bold" Margin="8,8,8,4" />
+                    <TextBlock Text="状态：" FontWeight="Bold" Margin="8,8,8,4" />
                     <StackPanel Orientation="Horizontal" Margin="8,0,8,8">
                         <Ellipse Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,8,0">
                             <Ellipse.Style>
@@ -40,15 +40,15 @@
                         <TextBlock Text="{Binding ConnectionStatus}" VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <TextBlock Text="Device Version:" FontWeight="Bold" Margin="8,8,8,4" />
+                    <TextBlock Text="设备版本：" FontWeight="Bold" Margin="8,8,8,4" />
                     <TextBlock Text="{Binding DeviceVersion}" Margin="8,0,8,8" />
                     
-                    <CheckBox Content="Use KMBox NET"
+                    <CheckBox Content="使用 KMBox NET"
                               IsChecked="{Binding UseKmBoxNet, Mode=TwoWay}"
                               Margin="8,4,8,8" />
 
                     <StackPanel Margin="8,0,8,8" IsEnabled="{Binding UseKmBoxNet}">
-                        <TextBlock Text="KMBox NET IP / Port / MAC" FontWeight="Bold" />
+                        <TextBlock Text="KMBox NET IP / 端口 / MAC" FontWeight="Bold" />
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,4">
                             <TextBox Text="{Binding KmBoxNetIp, Mode=TwoWay}" Width="140" Margin="0,0,8,0"/>
                             <TextBox Text="{Binding KmBoxNetPort, Mode=TwoWay}" Width="80" Margin="0,0,8,0"/>
@@ -56,11 +56,11 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <CheckBox Content="Auto-connect on startup"
+                    <CheckBox Content="启动时自动连接"
                               IsChecked="{Binding AutoConnect, Mode=TwoWay}"
                               Margin="8,4,8,8" />
                     
-                    <TextBlock Text="Available Devices:" FontWeight="Bold" Margin="8,8,8,4" />
+                    <TextBlock Text="可用设备：" FontWeight="Bold" Margin="8,8,8,4" />
                     <ComboBox ItemsSource="{Binding AvailableDevices}"
                               SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
                               Margin="8,4,8,8"
@@ -77,21 +77,21 @@
                     </ComboBox>
                     
                     <WrapPanel Margin="0,8,0,8">
-                        <Button Content="Refresh Devices"
+                        <Button Content="刷新设备"
                                 Command="{Binding RefreshDevicesCommand}"
                                 MinWidth="120"
                                 Height="35"
                                 Margin="8,0,8,0"
                                 IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}" />
 
-                        <Button Content="Connect"
+                        <Button Content="连接"
                                 Command="{Binding ConnectCommand}"
                                 MinWidth="120"
                                 Height="35"
                                 Margin="8,0,8,0"
                                 IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}" />
 
-                        <Button Content="Disconnect"
+                        <Button Content="断开连接"
                                 Command="{Binding DisconnectCommand}"
                                 MinWidth="120"
                                 Height="35"
@@ -99,15 +99,15 @@
                                 IsEnabled="{Binding IsConnected}" />
                     </WrapPanel>
                     
-                    <Button Content="? Test Mouse Movement" 
+                    <Button Content="测试鼠标移动" 
                             Command="{Binding TestMoveCommand}" 
                             Padding="15,8" 
                             Background="#FF1E1E1E"
                             BorderBrush="#FF3A3A3A"
                             Foreground="#FFE6E6E6"
-                            ToolTip="Moves the mouse in a test pattern to verify the device is working"
+                            ToolTip="以测试模式移动鼠标以验证设备是否工作"
                             IsEnabled="{Binding IsConnected}"/>
-                    <TextBlock Text="? (Device must be connected)" 
+                    <TextBlock Text="（设备必须已连接）" 
                                VerticalAlignment="Center" 
                                Foreground="Gray" 
                                FontSize="11" 
@@ -115,27 +115,27 @@
                 </StackPanel>
             </GroupBox>
 
-            <!-- Aimbot Settings -->
-            <GroupBox Header="Aimbot Settings" Margin="0,0,0,12">
+            <!-- 自瞄设置 -->
+            <GroupBox Header="自瞄设置" Margin="0,0,0,12">
                 <StackPanel>
-                    <CheckBox Content="Enable DeviceAimbot Aimbot"
+                    <CheckBox Content="启用自瞄"
                               IsChecked="{Binding Enabled, Mode=TwoWay}"
                               FontWeight="Bold"
                               Margin="8,8,8,8" />
                     
-                    <TextBlock Text="Target Bone" FontWeight="Bold" Margin="8,8,8,4" />
+                    <TextBlock Text="目标骨骼" FontWeight="Bold" Margin="8,8,8,4" />
                     <ComboBox ItemsSource="{Binding AvailableBones}"
                               SelectedItem="{Binding TargetBone, Mode=TwoWay}"
                               Margin="8,4,8,8" />
                     
-                    <TextBlock Text="Targeting Mode" FontWeight="Bold" Margin="8,8,8,4" />
+                    <TextBlock Text="目标模式" FontWeight="Bold" Margin="8,8,8,4" />
                     <ComboBox SelectedIndex="{Binding TargetingMode, Mode=TwoWay}"
                               Margin="8,4,8,8">
-                        <ComboBoxItem Content="Closest to Crosshair (FOV)" />
-                        <ComboBoxItem Content="Closest Distance" />
+                        <ComboBoxItem Content="最接近准心（FOV）" />
+                        <ComboBoxItem Content="最近距离" />
                     </ComboBox>
 
-                    <TextBlock Text="{Binding Smoothing, StringFormat='Smoothing: {0:F1}x'}" 
+                    <TextBlock Text="{Binding Smoothing, StringFormat='平滑: {0:F1}x'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding Smoothing, Mode=TwoWay}"
@@ -145,7 +145,7 @@
                             IsSnapToTickEnabled="True"
                             Margin="8,4,8,8" />
                     
-                    <TextBlock Text="{Binding FOV, StringFormat='FOV: {0:F0}'}" 
+                    <TextBlock Text="{Binding FOV, StringFormat='视野 (FOV): {0:F0}'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding FOV, Mode=TwoWay}"
@@ -155,7 +155,7 @@
                             IsSnapToTickEnabled="True"
                             Margin="8,4,8,8" />
                     
-                    <TextBlock Text="{Binding MaxDistance, StringFormat='Max Distance: {0:F0}m'}" 
+                    <TextBlock Text="{Binding MaxDistance, StringFormat='最大距离: {0:F0}m'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding MaxDistance, Mode=TwoWay}"
@@ -165,19 +165,19 @@
                             IsSnapToTickEnabled="True"
                             Margin="8,4,8,8" />
                     
-                    <CheckBox Content="Enable Bullet Drop Prediction"
+                    <CheckBox Content="启用弹道预测"
                               IsChecked="{Binding EnablePrediction, Mode=TwoWay}"
                               Margin="8,4,8,8" />
 
                     <Separator Margin="8,12,8,12" />
 
-                    <CheckBox Content="Show FOV Circle on ESP"
+                    <CheckBox Content="在 ESP 上显示 FOV 圆"
                               IsChecked="{Binding ShowFovCircle, Mode=TwoWay}"
                               FontWeight="Bold"
                               Margin="8,4,8,8" />
 
                     <WrapPanel Margin="8,4,8,4">
-                        <TextBlock Text="FOV Circle Color (Engaged):"
+                        <TextBlock Text="FOV 圆颜色（激活）:"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"
                                    Width="180" />
@@ -185,11 +185,11 @@
                                           SelectedColor="{Binding FovCircleColorEngaged, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                           UsingAlphaChannel="True"
                                           ShowRecentColors="False"
-                                          ToolTip="Color when aimbot is actively engaged" />
+                                          ToolTip="自瞄激活时的颜色" />
                     </WrapPanel>
 
                     <WrapPanel Margin="8,4,8,8">
-                        <TextBlock Text="FOV Circle Color (Idle):"
+                        <TextBlock Text="FOV 圆颜色（空闲）:"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"
                                    Width="180" />
@@ -197,61 +197,61 @@
                                           SelectedColor="{Binding FovCircleColorIdle, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                           UsingAlphaChannel="True"
                                           ShowRecentColors="False"
-                                          ToolTip="Color when aimbot is not engaged" />
+                                          ToolTip="自瞄未激活时的颜色" />
                     </WrapPanel>
                 </StackPanel>
             </GroupBox>
 
-            <!-- Target Filters -->
-            <GroupBox Header="Target Filters" Margin="0,0,12,12">
+            <!-- 目标过滤器 -->
+            <GroupBox Header="目标过滤器" Margin="0,0,12,12">
                 <StackPanel>
-                    <TextBlock Text="Select which player types to target" 
+                    <TextBlock Text="选择要锁定的玩家类型" 
                                TextWrapping="Wrap"
                                Margin="8,8,8,8"
                                Foreground="Gray" />
                     
-                    <CheckBox Content="Target PMC Players"
+                    <CheckBox Content="锁定 PMC 玩家"
                               IsChecked="{Binding TargetPMC, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="Target Player Scavs"
+                    <CheckBox Content="锁定 玩家 Scav"
                               IsChecked="{Binding TargetPlayerScav, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="Target AI Scavs"
+                    <CheckBox Content="锁定 AI Scav"
                               IsChecked="{Binding TargetAIScav, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="Target Bosses"
+                    <CheckBox Content="锁定 Boss"
                               IsChecked="{Binding TargetBoss, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="Target Raiders"
+                    <CheckBox Content="锁定 突袭者"
                               IsChecked="{Binding TargetRaider, Mode=TwoWay}"
                               Margin="8,4,8,4" />
 
-                    <CheckBox Content="Target Watchlist Players"
+                    <CheckBox Content="锁定 监视列表玩家"
                               IsChecked="{Binding TargetSpecialPlayer, Mode=TwoWay}"
                               Margin="8,4,8,4" />
 
-                    <CheckBox Content="Target Streamers"
+                    <CheckBox Content="锁定 主播"
                               IsChecked="{Binding TargetStreamer, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                 </StackPanel>
             </GroupBox>
 
-            <!-- Help Text -->
-            <GroupBox Header="Usage" Margin="0,0,0,12">
+            <!-- 使用说明 -->
+            <GroupBox Header="使用说明" Margin="0,0,0,12">
                 <TextBlock TextWrapping="Wrap" 
                            Margin="8,8,8,8">
-                    1. Connect your DeviceAimbot device using the dropdown above<LineBreak />
-                    2. Enable the aimbot with the checkbox<LineBreak />
-                    3. Hold a configured mouse button (set it in Settings → Hotkeys tab) to activate<LineBreak />
-                    4. The aimbot will automatically target enemies within FOV<LineBreak />
+                    1. 使用上方下拉菜单连接设备<LineBreak />
+                    2. 通过复选框启用自瞄<LineBreak />
+                    3. 按住已配置的鼠标按键以激活（在 设置 → 热键 中设置）<LineBreak />
+                    4. 自瞄会自动锁定在 FOV 范围内的敌人<LineBreak />
                     <LineBreak />
-                    Note: You can enable Silentaimbot (Uses Memory Write) in MemWrites tab, it will use the same hotkey and all settings from here. Silent Aim Does not aim for you, it tells bullets where to go your gun won't move to the target bone, your bullets will.<LineBreak />
+                    注意：您可以在 MemWrites 选项卡中启用 Silentaimbot（使用内存写入），它会使用相同的热键并应用此处的所有设置。Silent Aim 不会替您移动准星，它只是让子弹飞向目标骨骼。<LineBreak />
                     <LineBreak />
-                    Make sure your DeviceAimbot firmware is up to date.
+                    请确保您的 DeviceAimbot 固件为最新。
                 </TextBlock>
             </GroupBox>
         </UniformGrid>
