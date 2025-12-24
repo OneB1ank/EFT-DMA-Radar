@@ -89,12 +89,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="10.0.0" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Open.Nat.V2" Version="3.1.1" />
-		<!-- ImGui + Silk.NET for hybrid UI -->
-		<PackageReference Include="ImGui.NET" Version="1.90.7.1" />
-		<PackageReference Include="Silk.NET" Version="2.22.0" />
-		<PackageReference Include="Silk.NET.Input" Version="2.22.0" />
-		<PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
-		<PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
 	</ItemGroup>
 
 </Project>

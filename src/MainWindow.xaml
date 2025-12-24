@@ -7,7 +7,6 @@
         xmlns:vm="clr-namespace:LoneEftDmaRadar"
         xmlns:tabs="clr-namespace:LoneEftDmaRadar.UI.Radar.Views"
         xmlns:hotkeys="clr-namespace:LoneEftDmaRadar.UI.Hotkeys"
-        xmlns:imgui="clr-namespace:LoneEftDmaRadar.UI.ImGui"
         mc:Ignorable="d"
         Title="Moulman EFT DMA Radar"
         Width="1280" Height="720"
@@ -67,9 +66,6 @@
             </TabItem>
             <TabItem Header="Debug">
                 <tabs:DebugTab x:Name="DebugTab" />
-            </TabItem>
-            <TabItem Header="ImGui (Experimental)">
-                <imgui:ImGuiTab x:Name="ImGuiTab" />
             </TabItem>
         </TabControl>
     </Grid>
