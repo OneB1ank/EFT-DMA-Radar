@@ -56,6 +56,12 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         protected static readonly ConcurrentDictionary<string, int> _groups = new(StringComparer.OrdinalIgnoreCase);
         protected static int _lastGroupNumber;
 
+        /// <summary>
+        /// Set of temporary marked teammates (by player Base address).
+        /// Cleared on each raid end.
+        /// </summary>
+        protected static readonly HashSet<ulong> _tempTeammates = new();
+
         static AbstractPlayer()
         {
             Memory.RaidStopped += Memory_RaidStopped;
@@ -65,6 +71,57 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         {
             _groups.Clear();
             _lastGroupNumber = default;
+            lock (_tempTeammates)
+            {
+                _tempTeammates.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Mark a player as a temporary teammate.
+        /// </summary>
+        public static void AddTempTeammate(AbstractPlayer player)
+        {
+            if (player == null) return;
+            lock (_tempTeammates)
+            {
+                _tempTeammates.Add(player.Base);
+            }
+            player.UpdateTypeForTeammate(true);
+        }
+
+        /// <summary>
+        /// Remove a player from temporary teammates.
+        /// </summary>
+        public static void RemoveTempTeammate(AbstractPlayer player)
+        {
+            if (player == null) return;
+            lock (_tempTeammates)
+            {
+                _tempTeammates.Remove(player.Base);
+            }
+            player.UpdateTypeForTeammate(false);
+        }
+
+        /// <summary>
+        /// Check if a player is marked as a temporary teammate.
+        /// </summary>
+        public static bool IsTempTeammate(AbstractPlayer player)
+        {
+            if (player == null) return false;
+            lock (_tempTeammates)
+            {
+                return _tempTeammates.Contains(player.Base);
+            }
+        }
+
+        /// <summary>
+        /// Updates the player's Type when temporary teammate status changes.
+        /// Override in derived classes to handle type updates.
+        /// </summary>
+        public virtual void UpdateTypeForTeammate(bool isTeammate)
+        {
+            // do nothing
         }
 
         #endregion
@@ -1136,14 +1193,17 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
 
         private ValueTuple<SKPaint, SKPaint> GetPaints()
         {
-            if (IsFocused)
-                return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintFocused, SKPaints.TextFocused);
             if (this is LocalPlayer)
                 return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintLocalPlayer, SKPaints.TextLocalPlayer);
+
+            if (Type == PlayerType.Teammate)
+                return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintTeammate, SKPaints.TextTeammate);
+
+            if (IsFocused)
+                return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintFocused, SKPaints.TextFocused);
+
             switch (Type)
             {
-                case PlayerType.Teammate:
-                    return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintTeammate, SKPaints.TextTeammate);
                 case PlayerType.PMC:
                     return PlayerSide switch
                     {

@@ -739,9 +739,27 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
             if (e.RightButton is System.Windows.Input.MouseButtonState.Pressed)
             {
-                if (_mouseOverItem is AbstractPlayer player)
+                if (_mouseOverItem is AbstractPlayer player && !(player is LocalPlayer))
                 {
-                    player.IsFocused = !player.IsFocused;
+                    // First click: set as focused
+                    // Second click (when focused): add as teammate
+                    // Third click (when teammate): remove teammate and unfocus
+                    if (AbstractPlayer.IsTempTeammate(player))
+                    {
+                        AbstractPlayer.RemoveTempTeammate(player);
+                        player.IsFocused = false;
+                        DebugLogger.LogDebug($"Removed {player.Name ?? "Unknown"} from temporary teammates (unfocused)");
+                    }
+                    else if (player.IsFocused)
+                    {
+                        AbstractPlayer.AddTempTeammate(player);
+                        DebugLogger.LogDebug($"Added {player.Name ?? "Unknown"} as temporary teammate");
+                    }
+                    else
+                    {
+                        player.IsFocused = true;
+                        DebugLogger.LogDebug($"Focused on {player.Name ?? "Unknown"}");
+                    }
                 }
             }
             if (MainWindow.Instance?.Radar?.Overlay?.ViewModel is RadarOverlayViewModel vm && vm.IsLootOverlayVisible)
