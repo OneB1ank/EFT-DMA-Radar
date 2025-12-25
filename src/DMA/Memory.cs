@@ -775,12 +775,53 @@ namespace LoneEftDmaRadar.DMA
         {
             try
             {
-                // Cancel the memory thread
+                // Cancel the restart token
+                lock (_restartSync)
+                {
+                    _cts?.Cancel();
+                    _cts?.Dispose();
+                    _cts = null;
+                }
+
+                // Cancel and wait for memory thread to exit
                 _memoryThreadCts?.Cancel();
+
+                // Wait for the memory thread to exit (with timeout)
+                if (_memoryThread != null && _memoryThread.IsAlive)
+                {
+                    if (!_memoryThread.Join(TimeSpan.FromSeconds(2)))
+                {
+                    DebugLogger.LogDebug("[Memory] Warning: Memory thread did not exit in time, forcing abort.");
+                    _memoryThread.Interrupt();
+                }
+                }
                 _memoryThreadCts?.Dispose();
+                _memoryThread = null;
+
+                // Dispose DeviceAimbot (this also disconnects DeviceController)
+                _deviceAimbot?.Dispose();
+                _deviceAimbot = null;
+
+                // Disconnect Device (km.* device serial port)
+                try
+                {
+                    Device.disconnect();
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.LogDebug($"[Memory] Error disconnecting device: {ex}");
+                }
 
                 // Dispose InputManager and its WorkerThread
                 _input?.Dispose();
+                _input = null;
+
+                // Dispose Vmm (DMA connection)
+                if (_vmm is IDisposable vmmDisposable)
+                {
+                    vmmDisposable.Dispose();
+                    _vmm = null;
+                }
 
                 DebugLogger.LogDebug("[Memory] Resources disposed successfully.");
             }
