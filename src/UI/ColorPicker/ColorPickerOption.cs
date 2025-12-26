@@ -35,8 +35,6 @@ namespace LoneEftDmaRadar.UI.ColorPicker
         PMCPlayer,
         PMCBear,
         PMCUsec,
-        WatchlistPlayer,
-        StreamerPlayer,
         HumanScavPlayer,
         ScavPlayer,
         RaiderPlayer,

@@ -225,17 +225,9 @@
                     <CheckBox Content="锁定 Boss"
                               IsChecked="{Binding TargetBoss, Mode=TwoWay}"
                               Margin="8,4,8,4" />
-                    
+
                     <CheckBox Content="锁定 突袭者"
                               IsChecked="{Binding TargetRaider, Mode=TwoWay}"
-                              Margin="8,4,8,4" />
-
-                    <CheckBox Content="锁定 监视列表玩家"
-                              IsChecked="{Binding TargetSpecialPlayer, Mode=TwoWay}"
-                              Margin="8,4,8,4" />
-
-                    <CheckBox Content="锁定 主播"
-                              IsChecked="{Binding TargetStreamer, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                 </StackPanel>
             </GroupBox>

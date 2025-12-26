@@ -119,10 +119,6 @@
                                   ToolTip="通过半透明绿色线连接分组的玩家。不适用于您自己的队伍。"
                                   IsChecked="{Binding ConnectGroups, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="隐藏名字"
-                                  ToolTip="在雷达或玩家信息小部件中隐藏人类玩家名字。取而代之显示(高度,距离)。"
-                                  IsChecked="{Binding HideNames, Mode=TwoWay}"
-                                  Margin="0,0,16,8" />
                         <CheckBox Content="显示地雷"
                                   IsChecked="{Binding ShowHazards, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
@@ -133,10 +129,6 @@
                         <CheckBox Content="AI瞄准线"
                                   ToolTip="为AI玩家启用动态瞄准线。当有人瞄准您时瞄准线会延长。"
                                   IsChecked="{Binding AIAimlines, Mode=TwoWay}"
-                                  Margin="0,0,0,8" />
-                        <CheckBox Content="标记可疑玩家"
-                                  ToolTip="根据某些标准（K/D、存活率等）标记可疑玩家。"
-                                  IsChecked="{Binding MarkSusPlayers, Mode=TwoWay}"
                                   Margin="0,0,0,8" />
                     </WrapPanel>
 
@@ -214,7 +206,7 @@
                               Margin="0,0,8,0" />
                     <ListBox ItemsSource="{Binding CurrentQuests}"
                              IsEnabled="{Binding QuestHelperEnabled}"
-                             Height="250"
+                             Height="400"
                              ToolTip="活跃任务列表（进入团队副本后会显示）。取消勾选任务以停止追踪。"
                              ScrollViewer.CanContentScroll="True">
 
