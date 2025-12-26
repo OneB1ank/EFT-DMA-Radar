@@ -1129,10 +1129,14 @@ namespace LoneEftDmaRadar.UI.ESP
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static SKPaint GetPlayerColor(AbstractPlayer player)
         {
-             if (player.IsFocused)
-                return SKPaints.PaintAimviewWidgetFocused;
             if (player is LocalPlayer)
                 return SKPaints.PaintAimviewWidgetLocalPlayer;
+
+            if (player.Type == PlayerType.Teammate)
+                return SKPaints.PaintAimviewWidgetTeammate;
+
+            if (player.IsFocused)
+                return SKPaints.PaintAimviewWidgetFocused;
 
             if (player.Type == PlayerType.PMC)
             {
@@ -1164,7 +1168,6 @@ namespace LoneEftDmaRadar.UI.ESP
 
             return player.Type switch
             {
-                PlayerType.Teammate => SKPaints.PaintAimviewWidgetTeammate,
                 PlayerType.AIScav => SKPaints.PaintAimviewWidgetScav,
                 PlayerType.AIRaider => SKPaints.PaintAimviewWidgetRaider,
                 PlayerType.AIBoss => SKPaints.PaintAimviewWidgetBoss,

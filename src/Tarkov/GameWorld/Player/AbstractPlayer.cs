@@ -1048,18 +1048,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                                 ? null
                                 : $" ({observed.HealthStatus})"; // Only display abnormal health status
                         }
-                        var isWhitelisted = App.Config.PlayerWhitelist
-                            .Any(w => w.AcctID == AccountID && !string.IsNullOrEmpty(w.CustomName));
-
-                        if (IsPmc && !isWhitelisted)
-                        {
-                            char faction = PlayerSide.ToString()[0]; // Get faction letter (U/B)
-                            lines.Add($"[{faction}] {name}{health}");
-                        }
-                        else
-                        {
-                            lines.Add($"{name}{health}");
-                        }
+                        lines.Add($"{name}{health}");
 
                         if (!isFollowTarget)
                         {
@@ -1247,7 +1236,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
             if (IsHostileActive) // Enemy Players, display information
             {
                 lines.Add($"{name}{health} {AccountID}".Trim());
-                var faction = PlayerSide.ToString();
+                var faction = PlayerSide.ToString().ToUpper();
                 string g = null;
                 if (GroupID != -1)
                     g = $" G:{GroupID} ";

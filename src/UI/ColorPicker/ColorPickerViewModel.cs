@@ -139,11 +139,13 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                 [ColorPickerOption.ContainerLoot] = SKColor.Parse("FFFFCC").ToString(),
                 [ColorPickerOption.QuestLoot] = SKColors.YellowGreen.ToString(),
                 [ColorPickerOption.StaticQuestItemsAndZones] = SKColors.DeepPink.ToString(),
+                [ColorPickerOption.QuestHelperItems] = SKColors.YellowGreen.ToString(),
                 [ColorPickerOption.Corpse] = SKColors.Silver.ToString(),
                 [ColorPickerOption.MedsFilterLoot] = SKColors.LightSalmon.ToString(),
                 [ColorPickerOption.FoodFilterLoot] = SKColors.CornflowerBlue.ToString(),
                 [ColorPickerOption.BackpacksFilterLoot] = SKColor.Parse("00b02c").ToString(),
                 [ColorPickerOption.Explosives] = SKColors.OrangeRed.ToString(),
+                [ColorPickerOption.QuestHelperZones] = SKColors.DeepPink.ToString()
             };
         }
 
@@ -263,6 +265,14 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                             break;
                         case ColorPickerOption.ContainerLoot:
                             SKPaints.PaintContainerLoot.Color = skColor;
+                            break;
+                        case ColorPickerOption.QuestHelperZones:
+                            SKPaints.PaintQuestZone.Color = skColor;
+                            SKPaints.TextQuestZone.Color = skColor;
+                            break;
+                        case ColorPickerOption.QuestHelperItems:
+                            SKPaints.PaintQuestItem.Color = skColor;
+                            SKPaints.TextQuestItem.Color = skColor;
                             break;
                     }
                 }

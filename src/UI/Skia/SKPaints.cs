@@ -456,6 +456,21 @@ namespace LoneEftDmaRadar.UI.Skia
             IsAntialias = true,
         };
 
+        public static SKPaint PaintQuestHelperItem { get; } = new()
+        {
+            Color = SKColors.DeepPink,
+            StrokeWidth = 0.25f,
+            Style = SKPaintStyle.Fill,
+            IsAntialias = true,
+        };
+
+        public static SKPaint TextQuestHelperItem { get; } = new()
+        {
+            Color = SKColors.DeepPink,
+            IsStroke = false,
+            IsAntialias = true,
+        };
+
         #endregion
 
         #region Render/Misc Paints
@@ -533,6 +548,20 @@ namespace LoneEftDmaRadar.UI.Skia
             Color = SKColors.Orange,
             StrokeWidth = 0.25f,
             Style = SKPaintStyle.Fill,
+            IsAntialias = true,
+        };
+
+        public static SKPaint PaintQuestZone { get; } = new()
+        {
+            Color = SKColors.Gold,
+            Style = SKPaintStyle.Fill,
+            IsAntialias = true,
+        };
+
+        public static SKPaint TextQuestZone { get; } = new()
+        {
+            Color = SKColors.Gold,
+            IsStroke = false,
             IsAntialias = true,
         };
 

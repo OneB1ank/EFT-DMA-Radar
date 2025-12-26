@@ -132,6 +132,13 @@ namespace LoneEftDmaRadar
         public InfoWidgetConfig InfoWidget { get; private set; } = new();
 
         /// <summary>
+        /// Quest Helper Cfg
+        /// </summary>
+        [JsonPropertyName("questHelper")]
+        [JsonInclude]
+        public QuestHelperConfig QuestHelper { get; private set; } = new();
+
+        /// <summary>
         /// Settings for Device Aimbot (DeviceAimbot/KMBox).
         /// </summary>
         [JsonPropertyName("device")]
@@ -535,10 +542,10 @@ namespace LoneEftDmaRadar
         public float FOV { get; set; } = 50.0f;
 
         /// <summary>
-        /// Show Mines/Claymores in the Radar UI.
+        /// Show Hazards (mines,snipers,etc.) in the Radar UI.
         /// </summary>
-        [JsonPropertyName("showMines")]
-        public bool ShowMines { get; set; } = true;
+        [JsonPropertyName("showHazards")]
+        public bool ShowHazards { get; set; } = true;
 
         /// <summary>
         /// Hides player names & extended player info in Radar GUI.
@@ -1246,5 +1253,22 @@ namespace LoneEftDmaRadar
 
         [JsonPropertyName("invertColors")]
         public bool InvertColors { get; set; } = true;
+    }
+
+    public sealed class QuestHelperConfig
+    {
+        /// <summary>
+        /// Enables Quest Helper
+        /// </summary>
+        [JsonPropertyName("enabled")]
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Quests that are overridden/disabled.
+        /// </summary>
+        [JsonPropertyName("blacklistedQuests")]
+        [JsonInclude]
+        [JsonConverter(typeof(CaseInsensitiveConcurrentDictionaryConverter<byte>))]
+        public ConcurrentDictionary<string, byte> BlacklistedQuests { get; private set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }
