@@ -246,6 +246,36 @@
                                    VerticalAlignment="Center"
                                    Margin="8,0,0,0" />
                      </WrapPanel>
+                     <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspTripwires}">
+                        <TextBlock Text="Tripwire Distance (ESP, 0 = Unlimited)"
+                                   VerticalAlignment="Center" />
+                        <Slider x:Name="EspTripwireDistanceSlider"
+                                Width="200"
+                                Margin="8,0"
+                                Minimum="0"
+                                Maximum="500"
+                                SmallChange="10"
+                                LargeChange="50"
+                                Value="{Binding EspTripwireDistance, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding Value, ElementName=EspTripwireDistanceSlider, StringFormat='{}{0:F0}m'}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0" />
+                     </WrapPanel>
+                     <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspGrenades}">
+                        <TextBlock Text="Grenade Distance (ESP, 0 = Unlimited)"
+                                   VerticalAlignment="Center" />
+                        <Slider x:Name="EspGrenadeDistanceSlider"
+                                Width="200"
+                                Margin="8,0"
+                                Minimum="0"
+                                Maximum="500"
+                                SmallChange="10"
+                                LargeChange="50"
+                                Value="{Binding EspGrenadeDistance, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding Value, ElementName=EspGrenadeDistanceSlider, StringFormat='{}{0:F0}m'}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0" />
+                     </WrapPanel>
                      <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspLootConeEnabled}">
                         <TextBlock Text="Cone Angle"
                                    VerticalAlignment="Center" />

@@ -337,12 +337,12 @@ namespace LoneEftDmaRadar.UI.ESP
 
                         if (Explosives is not null && App.Config.UI.EspTripwires)
                         {
-                            DrawTripwires(ctx, screenWidth, screenHeight);
+                            DrawTripwires(ctx, screenWidth, screenHeight, localPlayer);
                         }
 
                         if (Explosives is not null && App.Config.UI.EspGrenades)
                         {
-                            DrawGrenades(ctx, screenWidth, screenHeight);
+                            DrawGrenades(ctx, screenWidth, screenHeight, localPlayer);
                         }
 
                         // Render players
@@ -555,10 +555,13 @@ namespace LoneEftDmaRadar.UI.ESP
             }
         }
 
-        private void DrawTripwires(Dx9RenderContext ctx, float screenWidth, float screenHeight)
+        private void DrawTripwires(Dx9RenderContext ctx, float screenWidth, float screenHeight, LocalPlayer localPlayer)
         {
             if (Explosives is null)
                 return;
+
+            var camPos = localPlayer?.Position ?? Vector3.Zero;
+            float maxDistance = App.Config.UI.EspTripwireMaxDistance;
 
             foreach (var explosive in Explosives)
             {
@@ -568,6 +571,11 @@ namespace LoneEftDmaRadar.UI.ESP
                 try
                 {
                     if (tripwire.Position == Vector3.Zero)
+                        continue;
+
+                    // Check distance to tripwire
+                    float distance = Vector3.Distance(camPos, tripwire.Position);
+                    if (maxDistance > 0 && distance > maxDistance)
                         continue;
 
                     if (!CameraManager.WorldToScreenWithScale(tripwire.Position, out var screen, out float scale, true, true))
@@ -588,10 +596,13 @@ namespace LoneEftDmaRadar.UI.ESP
             }
         }
 
-        private void DrawGrenades(Dx9RenderContext ctx, float screenWidth, float screenHeight)
+        private void DrawGrenades(Dx9RenderContext ctx, float screenWidth, float screenHeight, LocalPlayer localPlayer)
         {
             if (Explosives is null)
                 return;
+
+            var camPos = localPlayer?.Position ?? Vector3.Zero;
+            float maxDistance = App.Config.UI.EspGrenadeMaxDistance;
 
             foreach (var explosive in Explosives)
             {
@@ -601,6 +612,11 @@ namespace LoneEftDmaRadar.UI.ESP
                 try
                 {
                     if (grenade.Position == Vector3.Zero)
+                        continue;
+
+                    // Check distance to grenade
+                    float distance = Vector3.Distance(camPos, grenade.Position);
+                    if (maxDistance > 0 && distance > maxDistance)
                         continue;
 
                     if (!CameraManager.WorldToScreenWithScale(grenade.Position, out var screen, out float scale, true, true))
@@ -1172,8 +1188,6 @@ namespace LoneEftDmaRadar.UI.ESP
                 PlayerType.AIRaider => SKPaints.PaintAimviewWidgetRaider,
                 PlayerType.AIBoss => SKPaints.PaintAimviewWidgetBoss,
                 PlayerType.PScav => SKPaints.PaintAimviewWidgetPScav,
-                PlayerType.SpecialPlayer => SKPaints.PaintAimviewWidgetWatchlist,
-                PlayerType.Streamer => SKPaints.PaintAimviewWidgetStreamer,
                 _ => SKPaints.PaintAimviewWidgetPMC
             };
         }
@@ -1357,9 +1371,8 @@ namespace LoneEftDmaRadar.UI.ESP
             var cfg = App.Config.UI;
             var basePaint = GetPlayerColor(player);
 
-            // Preserve special colouring (local, focused, watchlist/streamer, teammates).
-            if (player is LocalPlayer || player.IsFocused ||
-                player.Type is PlayerType.SpecialPlayer or PlayerType.Streamer or PlayerType.Teammate)
+            // Preserve special colouring (local, focused, teammates).
+            if (player is LocalPlayer || player.IsFocused || player.Type is PlayerType.Teammate)
             {
                 return ToColor(basePaint);
             }

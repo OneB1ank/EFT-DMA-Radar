@@ -126,8 +126,6 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                 [ColorPickerOption.PMCPlayer] = SKColors.Red.ToString(),
                 [ColorPickerOption.PMCBear] = SKColors.Red.ToString(),
                 [ColorPickerOption.PMCUsec] = SKColors.Blue.ToString(),
-                [ColorPickerOption.WatchlistPlayer] = SKColors.HotPink.ToString(),
-                [ColorPickerOption.StreamerPlayer] = SKColors.MediumPurple.ToString(),
                 [ColorPickerOption.HumanScavPlayer] = SKColors.White.ToString(),
                 [ColorPickerOption.ScavPlayer] = SKColors.Yellow.ToString(),
                 [ColorPickerOption.RaiderPlayer] = SKColor.Parse("ffc70f").ToString(),
@@ -185,18 +183,6 @@ namespace LoneEftDmaRadar.UI.ColorPicker
                         case ColorPickerOption.PMCUsec:
                             SKPaints.PaintPMCUsec.Color = skColor;
                             SKPaints.TextPMCUsec.Color = skColor;
-                            break;
-                        case ColorPickerOption.WatchlistPlayer:
-                            SKPaints.PaintWatchlist.Color = skColor;
-                            SKPaints.TextWatchlist.Color = skColor;
-                            SKPaints.PaintAimviewWidgetWatchlist.Color = skColor;
-                            SKPaints.TextPlayersOverlaySpecial.Color = skColor.AdjustBrightness(0.5f);
-                            break;
-                        case ColorPickerOption.StreamerPlayer:
-                            SKPaints.PaintStreamer.Color = skColor;
-                            SKPaints.TextStreamer.Color = skColor;
-                            SKPaints.PaintAimviewWidgetStreamer.Color = skColor;
-                            SKPaints.TextPlayersOverlayStreamer.Color = skColor.AdjustBrightness(0.5f);
                             break;
                         case ColorPickerOption.HumanScavPlayer:
                             SKPaints.PaintPScav.Color = skColor;

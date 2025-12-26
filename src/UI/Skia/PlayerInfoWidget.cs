@@ -148,10 +148,6 @@ namespace LoneEftDmaRadar.UI.Skia
                     return SKPaints.TextPlayersOverlayPMC;
                 case PlayerType.PScav:
                     return SKPaints.TextPlayersOverlayPScav;
-                case PlayerType.Streamer:
-                    return SKPaints.TextPlayersOverlayStreamer;
-                case PlayerType.SpecialPlayer:
-                    return SKPaints.TextPlayersOverlaySpecial;
                 default:
                     return SKPaints.TextPlayersOverlay;
             }

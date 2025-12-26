@@ -701,6 +701,32 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public float EspTripwireDistance
+        {
+            get => App.Config.UI.EspTripwireMaxDistance;
+            set
+            {
+                if (Math.Abs(App.Config.UI.EspTripwireMaxDistance - value) > float.Epsilon)
+                {
+                    App.Config.UI.EspTripwireMaxDistance = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public float EspGrenadeDistance
+        {
+            get => App.Config.UI.EspGrenadeMaxDistance;
+            set
+            {
+                if (Math.Abs(App.Config.UI.EspGrenadeMaxDistance - value) > float.Epsilon)
+                {
+                    App.Config.UI.EspGrenadeMaxDistance = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #region MiniRadar
         public bool MiniRadarEnabled
         {

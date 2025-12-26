@@ -188,8 +188,6 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             SKPaints.PaintLocalPlayer.StrokeWidth = 1.66f * newScale;
             SKPaints.PaintTeammate.StrokeWidth = 1.66f * newScale;
             SKPaints.PaintPMC.StrokeWidth = 1.66f * newScale;
-            SKPaints.PaintWatchlist.StrokeWidth = 1.66f * newScale;
-            SKPaints.PaintStreamer.StrokeWidth = 1.66f * newScale;
             SKPaints.PaintScav.StrokeWidth = 1.66f * newScale;
             SKPaints.PaintRaider.StrokeWidth = 1.66f * newScale;
             SKPaints.PaintBoss.StrokeWidth = 1.66f * newScale;

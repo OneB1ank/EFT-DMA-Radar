@@ -61,20 +61,6 @@ namespace LoneEftDmaRadar
         public DMAConfig DMA { get; private set; } = new();
 
         /// <summary>
-        /// Profile API Config.
-        /// </summary>
-        [JsonPropertyName("profileApi")]
-        [JsonInclude]
-        public ProfileApiConfig ProfileApi { get; private set; } = new();
-
-        /// <summary>
-        /// Twitch API Config (for streamer lookup).
-        /// </summary>
-        [JsonPropertyName("twitchApi")]
-        [JsonInclude]
-        public TwitchApiConfig TwitchApi { get; private set; } = new();
-
-        /// <summary>
         /// UI/Radar Config
         /// </summary>
         [JsonPropertyName("ui")]
@@ -500,6 +486,18 @@ namespace LoneEftDmaRadar
         public bool EspGrenades { get; set; } = true;
 
         /// <summary>
+        /// Maximum distance to render tripwires on ESP (in meters). 0 = unlimited.
+        /// </summary>
+        [JsonPropertyName("espTripwireMaxDistance")]
+        public float EspTripwireMaxDistance { get; set; } = 0f;
+
+        /// <summary>
+        /// Maximum distance to render grenades on ESP (in meters). 0 = unlimited.
+        /// </summary>
+        [JsonPropertyName("espGrenadeMaxDistance")]
+        public float EspGrenadeMaxDistance { get; set; } = 0f;
+
+        /// <summary>
         /// Show Loot on ESP.
         /// </summary>
         [JsonPropertyName("espLoot")]
@@ -842,8 +840,6 @@ namespace LoneEftDmaRadar
         public bool TargetAIScav { get; set; } = true;
         public bool TargetBoss { get; set; } = true;
         public bool TargetRaider { get; set; } = true;
-        public bool TargetSpecialPlayer { get; set; } = true;
-        public bool TargetStreamer { get; set; } = true;
 
         // KMBox NET
         public bool UseKmBoxNet { get; set; } = false;
@@ -943,24 +939,6 @@ namespace LoneEftDmaRadar
         public SKRect Location { get; set; }
     }
 
-    public sealed class ProfileApiConfig
-    {
-        [JsonPropertyName("tarkovDev")]
-        [JsonInclude]
-        public TarkovDevConfig TarkovDev { get; private set; } = new();
-        [JsonPropertyName("eftApiTech")]
-        [JsonInclude]
-        public EftApiTechConfig EftApiTech { get; private set; } = new();
-    }
-
-    public sealed class TwitchApiConfig
-    {
-        [JsonPropertyName("clientId")]
-        public string ClientId { get; set; } = null;
-        [JsonPropertyName("clientSecret")]
-        public string ClientSecret { get; set; } = null;
-    }
-
     public sealed class TarkovDevConfig
     {
         /// <summary>
@@ -973,30 +951,6 @@ namespace LoneEftDmaRadar
         /// </summary>
         [JsonPropertyName("enabled")]
         public bool Enabled { get; set; } = true;
-    }
-
-    public sealed class EftApiTechConfig
-    {
-        /// <summary>
-        /// Priority of this provider.
-        /// </summary>
-        [JsonPropertyName("priority")]
-        public uint Priority { get; set; } = 10;
-        /// <summary>
-        /// True if this provider is enabled, otherwise False.
-        /// </summary>
-        [JsonPropertyName("enabled")]
-        public bool Enabled { get; set; } = false;
-        /// <summary>
-        /// Number of requests per minute to this provider.
-        /// </summary>
-        [JsonPropertyName("requestsPerMinute")]
-        public int RequestsPerMinute { get; set; } = 5;
-        /// <summary>
-        /// API Key for eft-api.tech
-        /// </summary>
-        [JsonPropertyName("apiKey")]
-        public string ApiKey { get; set; } = null;
     }
 
     /// <summary>
