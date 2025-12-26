@@ -232,7 +232,7 @@
                         <CheckBox Content="Show Containers" IsChecked="{Binding EspContainers, Mode=TwoWay}" Margin="0,0,16,8" />
                      </WrapPanel>
                      <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspContainers}">
-                        <TextBlock Text="Container Distance (ESP)"
+                        <TextBlock Text="Container Distance"
                                    VerticalAlignment="Center" />
                         <Slider x:Name="EspContainerDistanceSlider"
                                 Width="150"
@@ -247,7 +247,7 @@
                                    Margin="8,0,0,0" />
                      </WrapPanel>
                      <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspTripwires}">
-                        <TextBlock Text="Tripwire Distance (ESP, 0 = Unlimited)"
+                        <TextBlock Text="Tripwire Distance"
                                    VerticalAlignment="Center" />
                         <Slider x:Name="EspTripwireDistanceSlider"
                                 Width="200"
@@ -262,7 +262,7 @@
                                    Margin="8,0,0,0" />
                      </WrapPanel>
                      <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspGrenades}">
-                        <TextBlock Text="Grenade Distance (ESP, 0 = Unlimited)"
+                        <TextBlock Text="Grenade Distance"
                                    VerticalAlignment="Center" />
                         <Slider x:Name="EspGrenadeDistanceSlider"
                                 Width="200"
