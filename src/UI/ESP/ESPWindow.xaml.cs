@@ -1473,16 +1473,7 @@ namespace LoneEftDmaRadar.UI.ESP
         /// <returns>Custom name from whitelist if available, otherwise the player's original name</returns>
         private static string GetPlayerDisplayName(AbstractPlayer player)
         {
-            if (player?.AccountID == null)
-                return player?.Name;
-
-            var whitelistEntry = App.Config.PlayerWhitelist
-                .FirstOrDefault(w => w.AcctID == player.AccountID);
-
-            if (whitelistEntry != null && !string.IsNullOrEmpty(whitelistEntry.CustomName))
-                return whitelistEntry.CustomName;
-
-            return player.Name;
+            return player?.Name;
         }
 
         private bool WorldToScreen2(in Vector3 world, out SKPoint scr, float screenWidth, float screenHeight)
