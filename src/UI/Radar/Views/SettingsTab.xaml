@@ -25,8 +25,8 @@
                     <TextBlock TextWrapping="Wrap"
                                Margin="0,0,0,12"
                                FontStyle="Italic">
-Zoom In: F1 / Mouse Wheel Up<LineBreak />
-Zoom Out: F2 / Mouse Wheel Down<LineBreak />
+Zoom In: F1 / Mouse Wheel Up 
+Zoom Out: F2 / Mouse Wheel Down 
 Toggle Fullscreen: F11
                     </TextBlock>
 
@@ -119,10 +119,6 @@ Toggle Fullscreen: F11
                                   ToolTip="Connects players that are grouped up via semi‑transparent green lines. Does not apply to your own party."
                                   IsChecked="{Binding ConnectGroups, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="Hide Names"
-                                  ToolTip="Hides human player names from displaying in the Radar or Player Info Widget. Instead will show the (Height,Distance)."
-                                  IsChecked="{Binding HideNames, Mode=TwoWay}"
-                                  Margin="0,0,16,8" />
                         <CheckBox Content="Show Hazards"
                                   IsChecked="{Binding ShowHazards, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
@@ -133,10 +129,6 @@ Toggle Fullscreen: F11
                         <CheckBox Content="AI Aimlines"
                                   ToolTip="Enables dynamic aimlines for AI Players. When you are being aimed at the aimlines will extend."
                                   IsChecked="{Binding AIAimlines, Mode=TwoWay}"
-                                  Margin="0,0,0,8" />
-                        <CheckBox Content="Mark Sus Players"
-                                  ToolTip="Marks players as suspicious based on certain criteria (K/D, S/R, etc.)"
-                                  IsChecked="{Binding MarkSusPlayers, Mode=TwoWay}"
                                   Margin="0,0,0,8" />
                     </WrapPanel>
 
@@ -214,7 +206,7 @@ Toggle Fullscreen: F11
                               Margin="0,0,8,0" />
                     <ListBox ItemsSource="{Binding CurrentQuests}"
                              IsEnabled="{Binding QuestHelperEnabled}"
-                             Height="250"
+                             Height="400"
                              ToolTip="Active Quest List (populates once you are in raid). Uncheck a quest to untrack it."
                              ScrollViewer.CanContentScroll="True">
 

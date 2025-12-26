@@ -169,40 +169,6 @@ namespace LoneEftDmaRadar.UI.Skia
             IsAntialias = true,
         };
 
-        public static SKPaint PaintWatchlist { get; } = new()
-        {
-            Color = SKColors.HotPink,
-            StrokeWidth = 1.66f,
-            Style = SKPaintStyle.Stroke,
-            IsAntialias = true,
-            StrokeJoin = SKStrokeJoin.Round,
-            StrokeCap = SKStrokeCap.Round
-        };
-
-        public static SKPaint TextWatchlist { get; } = new()
-        {
-            Color = SKColors.HotPink,
-            IsStroke = false,
-            IsAntialias = true,
-        };
-
-        public static SKPaint PaintStreamer { get; } = new()
-        {
-            Color = SKColors.MediumPurple,
-            StrokeWidth = 1.66f,
-            Style = SKPaintStyle.Stroke,
-            IsAntialias = true,
-            StrokeJoin = SKStrokeJoin.Round,
-            StrokeCap = SKStrokeCap.Round
-        };
-
-        public static SKPaint TextStreamer { get; } = new()
-        {
-            Color = SKColors.MediumPurple,
-            IsStroke = false,
-            IsAntialias = true,
-        };
-
         public static SKPaint PaintScav { get; } = new()
         {
             Color = SKColors.Yellow,
@@ -609,18 +575,6 @@ namespace LoneEftDmaRadar.UI.Skia
             IsAntialias = true
         };
 
-        public static SKPaint TextPlayersOverlayStreamer { get; } = new()
-        {
-            IsStroke = false,
-            IsAntialias = true
-        };
-
-        public static SKPaint TextPlayersOverlaySpecial { get; } = new()
-        {
-            IsStroke = false,
-            IsAntialias = true
-        };
-
         public static SKPaint TextPlayersOverlayFocused { get; } = new()
         {
             IsStroke = false,
@@ -649,20 +603,6 @@ namespace LoneEftDmaRadar.UI.Skia
         public static SKPaint PaintAimviewWidgetPMC { get; } = new()
         {
             Color = SKColors.Red,
-            StrokeWidth = 1,
-            Style = SKPaintStyle.Stroke
-        };
-
-        public static SKPaint PaintAimviewWidgetWatchlist { get; } = new()
-        {
-            Color = SKColors.HotPink,
-            StrokeWidth = 1,
-            Style = SKPaintStyle.Stroke
-        };
-
-        public static SKPaint PaintAimviewWidgetStreamer { get; } = new()
-        {
-            Color = SKColors.MediumPurple,
             StrokeWidth = 1,
             Style = SKPaintStyle.Stroke
         };
