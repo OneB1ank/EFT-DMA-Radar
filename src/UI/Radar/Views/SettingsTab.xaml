@@ -202,20 +202,20 @@
                 </StackPanel>
             </GroupBox>
 
-            <!-- Quest Helper -->
-            <GroupBox Header="Quest Helper"
+            <!-- 任务助手 -->
+            <GroupBox Header="任务助手"
                       Margin="0,0,0,12">
                 <DockPanel LastChildFill="True"
                            Margin="0,4,0,0">
-                    <CheckBox Content="Enabled"
-                              ToolTip="Toggles the Quest Helper feature. This will display Items and Zones that you need to pickup/visit for quests that you currently have active."
+                    <CheckBox Content="启用"
+                              ToolTip="切换任务助手功能。这将显示你当前已激活任务所需拾取的物品和需要访问的区域。"
                               IsChecked="{Binding QuestHelperEnabled, Mode=TwoWay}"
                               DockPanel.Dock="Left"
                               Margin="0,0,8,0" />
                     <ListBox ItemsSource="{Binding CurrentQuests}"
                              IsEnabled="{Binding QuestHelperEnabled}"
                              Height="250"
-                             ToolTip="Active Quest List (populates once you are in raid). Uncheck a quest to untrack it."
+                             ToolTip="活跃任务列表（进入团队副本后会显示）。取消勾选任务以停止追踪。"
                              ScrollViewer.CanContentScroll="True">
 
                         <!-- 1) Define the panel *with* virtualization baked in -->
