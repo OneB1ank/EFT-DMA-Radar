@@ -277,10 +277,10 @@
                                    Margin="8,0,0,0" />
                      </WrapPanel>
                      <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspGrenades}">
-                        <CheckBox Content="Show Grenade Trail"
+                        <CheckBox Content="显示手榴弹轨迹"
                                   IsChecked="{Binding EspGrenadeTrail, Mode=TwoWay}"
                                   Margin="0,0,16,0" />
-                        <TextBlock Text="Trail Length:"
+                        <TextBlock Text="小径长度："
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0" />
                         <Slider x:Name="EspGrenadeTrailLengthSlider"
