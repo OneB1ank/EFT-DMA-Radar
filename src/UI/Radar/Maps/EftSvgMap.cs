@@ -36,12 +36,12 @@ using System.IO.Compression;
 namespace LoneEftDmaRadar.UI.Radar.Maps
 {
     /// <summary>
-    /// SVG map implementation that keeps layers as vector SKPicture objects (no pre-rasterization)
-    /// and renders them each frame with appropriate scaling, height filtering and optional dimming.
+    /// SVG map implementation that pre-rasterizes layers to SKImage bitmaps for fast rendering.
+    /// Each layer is converted from vector to bitmap at load time, then drawn as a texture each frame.
     /// </summary>
     public sealed class EftSvgMap : IEftMap
     {
-        private readonly VectorLayer[] _layers;
+        private readonly RasterLayer[] _layers;
 
         /// <summary>Raw map ID.</summary>
         public string ID { get; }
@@ -55,8 +55,8 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         private const float VERTICAL_PADDING = 100f;
 
         /// <summary>
-        /// Construct a new vector map by loading each SVG layer from the supplied zip archive.
-        /// Layers are stored as SKSvg (vector) instead of rasterizing to SKImage.
+        /// Construct a new map by loading each SVG layer from the supplied zip archive
+        /// and pre-rasterizing them to SKImage bitmaps for fast rendering.
         /// </summary>
         /// <param name="zip">Archive containing the SVG layer files.</param>
         /// <param name="id">External map identifier.</param>
@@ -67,7 +67,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             ID = id;
             Config = config;
 
-            var loaded = new List<VectorLayer>();
+            var loaded = new List<RasterLayer>();
             try
             {
                 foreach (var layerCfg in config.MapLayers)
@@ -77,11 +77,12 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
 
                     using var stream = entry.Open();
 
-                    var svg = new SKSvg();
+                    using var svg = new SKSvg();
                     if (svg.Load(stream) is null || svg.Picture is null)
                         throw new InvalidOperationException($"Failed to load SVG '{layerCfg.Filename}'.");
 
-                    loaded.Add(new VectorLayer(svg, layerCfg));
+                    // Pre-rasterize the SVG to a bitmap for fast drawing
+                    loaded.Add(new RasterLayer(svg.Picture, layerCfg));
                 }
 
                 _layers = loaded.Order().ToArray();
@@ -100,7 +101,6 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         ///  - Map bounds → window bounds transform
         ///  - Configured SVG scale
         ///  - Optional dimming of non-top layers
-        ///  - Transparent clearing of the window region
         /// </summary>
         /// <param name="canvas">Destination Skia canvas.</param>
         /// <param name="playerHeight">Current player Y height for layer filtering.</param>
@@ -110,7 +110,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         {
             if (_layers.Length == 0) return;
 
-            using var visible = new PooledList<VectorLayer>(capacity: 8);
+            using var visible = new PooledList<RasterLayer>(capacity: 8);
             foreach (var layer in _layers)
             {
                 if (layer.IsHeightInRange(playerHeight))
@@ -132,6 +132,8 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             canvas.Translate(-mapBounds.Left, -mapBounds.Top);
             // Apply configured vector scaling
             canvas.Scale(Config.SvgScale, Config.SvgScale);
+            // Scale down by rasterization factor (images are 2x, render at 1x)
+            canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
 
             var front = visible[^1];
             foreach (var layer in visible)
@@ -140,21 +142,8 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
                            layer != front &&                // Make sure the current layer is not in front
                            !front.CannotDimLowerLayers;     // Don't dim the lower layers if the front layer has dimming disabled upon lower layers
 
-                var paint = dim ?
-                    SKPaints.PaintBitmapAlpha : SKPaints.PaintBitmap;
-
-                var picture = layer.Picture;
-                if (picture != null && !picture.Handle.Equals(IntPtr.Zero))
-                {
-                    try
-                    {
-                        canvas.DrawPicture(picture, paint);
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugLogger.LogError($"[EftSvgMap] Failed to draw layer: {ex.Message}");
-                    }
-                }
+                var paint = dim ? SKPaints.PaintBitmapAlpha : SKPaints.PaintBitmap;
+                canvas.DrawImage(layer.Image, 0, 0, paint);
             }
 
             canvas.Restore();
@@ -249,6 +238,8 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             canvas.Translate(dx, dy);
             canvas.Scale(scale, scale);
             canvas.Scale(Config.SvgScale, Config.SvgScale);
+            // Scale down by rasterization factor (images are 2x, render at 1x)
+            canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
 
             // Create paint with color inversion filter for dark mode visibility
             // Create paint with color inversion filter for dark mode visibility (configurable)
@@ -267,18 +258,72 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             // Draw all layers (bottom to top) to show full context
             foreach (var layer in _layers)
             {
-                var picture = layer.Picture;
-                if (picture != null && !picture.Handle.Equals(IntPtr.Zero))
+                canvas.DrawImage(layer.Image, 0, 0, paint);
+            }
+
+            canvas.Restore();
+        }
+
+        public void RenderThumbnailCentered(SKCanvas canvas, int width, int height, float centerX, float centerY, float zoom)
+        {
+            if (_layers.Length == 0) return;
+
+            var baseLayer = _layers[0];
+            float mapW = baseLayer.RawWidth * Config.SvgScale;
+            float mapH = baseLayer.RawHeight * Config.SvgScale;
+
+            if (mapW <= 0 || mapH <= 0) return;
+
+            // Calculate the visible area size based on zoom
+            // zoom = 1.0 means show entire map, zoom = 2.0 means show half the map (2x zoomed in)
+            float visibleW = mapW / zoom;
+            float visibleH = mapH / zoom;
+
+            // Calculate the source rectangle (what part of the map to show)
+            float srcLeft = centerX - (visibleW / 2f);
+            float srcTop = centerY - (visibleH / 2f);
+
+            // Clamp to map bounds
+            srcLeft = Math.Max(0, Math.Min(srcLeft, mapW - visibleW));
+            srcTop = Math.Max(0, Math.Min(srcTop, mapH - visibleH));
+
+            // Scale factor to fit the visible area into the output size
+            float scaleX = width / visibleW;
+            float scaleY = height / visibleH;
+            float scale = Math.Min(scaleX, scaleY);
+
+            // Center in output
+            float scaledW = visibleW * scale;
+            float scaledH = visibleH * scale;
+            float dx = (width - scaledW) / 2f;
+            float dy = (height - scaledH) / 2f;
+
+            canvas.Save();
+            canvas.Translate(dx, dy);
+            canvas.Scale(scale, scale);
+            // Translate to show the correct portion of the map
+            canvas.Translate(-srcLeft, -srcTop);
+            canvas.Scale(Config.SvgScale, Config.SvgScale);
+            // Scale down by rasterization factor (images are 2x, render at 1x)
+            canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
+
+            // Create paint with color inversion filter if enabled
+            using var paint = new SKPaint();
+            if (App.Config.UI.MiniRadar.InvertColors)
+            {
+                paint.ColorFilter = SKColorFilter.CreateColorMatrix(new float[]
                 {
-                    try
-                    {
-                        canvas.DrawPicture(picture, paint);
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugLogger.LogError($"[EftSvgMap] Failed to draw thumbnail layer: {ex.Message}");
-                    }
-                }
+                    -1,  0,  0, 0, 1,
+                     0, -1,  0, 0, 1,
+                     0,  0, -1, 0, 1,
+                     0,  0,  0, 1, 0
+                });
+            }
+
+            // Draw all layers
+            foreach (var layer in _layers)
+            {
+                canvas.DrawImage(layer.Image, 0, 0, paint);
             }
 
             canvas.Restore();
@@ -390,7 +435,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         }
         
         /// <summary>
-        /// Dispose all vector layers (releasing their SKSvg / SKPicture resources).
+        /// Dispose all raster layers (releasing their SKImage resources).
         /// </summary>
         public void Dispose()
         {
@@ -399,12 +444,14 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         }
 
         /// <summary>
-        /// Internal wrapper for a single SVG layer that preserves the SKSvg lifetime
-        /// (disposing SKSvg also disposes its SKPicture). Stores raw (unscaled) dimensions.
+        /// Internal wrapper for a single pre-rasterized map layer.
+        /// Converts SKPicture to SKImage at construction for fast bitmap drawing.
+        /// Rasterizes at 2x resolution for sharper zoomed-in quality.
         /// </summary>
-        private sealed class VectorLayer : IComparable<VectorLayer>, IDisposable
+        private sealed class RasterLayer : IComparable<RasterLayer>, IDisposable
         {
-            private readonly SKSvg _svg;
+            public const float RasterScale = 2f;  // Rasterize at 2x for better quality
+            private readonly SKImage _image;
             public readonly bool IsBaseLayer;
             public readonly bool CannotDimLowerLayers;
             public readonly float? MinHeight;
@@ -413,24 +460,36 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             public readonly float RawHeight;
 
             /// <summary>
-            /// The SKPicture representing this layer's vector content.
+            /// The pre-rasterized bitmap image for this layer (at 2x resolution).
             /// </summary>
-            public SKPicture? Picture => _svg.Picture;
+            public SKImage Image => _image;
 
             /// <summary>
-            /// Create a vector layer from a loaded SKSvg and its configuration.
+            /// Create a raster layer by converting the SKPicture to an SKImage bitmap.
+            /// Rasterizes at 2x resolution and scales dimensions for rendering.
             /// </summary>
-            public VectorLayer(SKSvg svg, EftMapConfig.Layer cfgLayer)
+            public RasterLayer(SKPicture picture, EftMapConfig.Layer cfgLayer)
             {
-                _svg = svg;
                 IsBaseLayer = cfgLayer.MinHeight is null && cfgLayer.MaxHeight is null;
                 CannotDimLowerLayers = cfgLayer.CannotDimLowerLayers;
                 MinHeight = cfgLayer.MinHeight;
                 MaxHeight = cfgLayer.MaxHeight;
 
-                var cr = svg.Picture!.CullRect;
-                RawWidth = cr.Width;
-                RawHeight = cr.Height;
+                var cullRect = picture.CullRect;
+                RawWidth = cullRect.Width;
+                RawHeight = cullRect.Height;
+
+                // Rasterize the vector picture to a bitmap image at 2x resolution
+                int width = (int)Math.Ceiling(RawWidth * RasterScale);
+                int height = (int)Math.Ceiling(RawHeight * RasterScale);
+
+                var imageInfo = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+                using var surface = SKSurface.Create(imageInfo);
+                var canvas = surface.Canvas;
+                canvas.Clear(SKColors.Transparent);
+                canvas.Scale(RasterScale, RasterScale);  // Scale up during rasterization
+                canvas.DrawPicture(picture);
+                _image = surface.Snapshot();
             }
 
             /// <summary>
@@ -448,7 +507,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             /// <summary>
             /// Ordering: base layers first, then ascending MinHeight, then ascending MaxHeight.
             /// </summary>
-            public int CompareTo(VectorLayer other)
+            public int CompareTo(RasterLayer other)
             {
                 if (other is null) return -1;
                 if (IsBaseLayer && !other.IsBaseLayer)
@@ -466,8 +525,8 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
                 return thisMax.CompareTo(otherMax);
             }
 
-            /// <summary>Dispose backing SKSvg (and thus the SKPicture).</summary>
-            public void Dispose() => _svg.Dispose();
+            /// <summary>Dispose the rasterized image.</summary>
+            public void Dispose() => _image.Dispose();
         }
 
     }

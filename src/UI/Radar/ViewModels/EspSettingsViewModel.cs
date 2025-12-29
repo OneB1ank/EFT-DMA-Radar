@@ -67,6 +67,18 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
 
         public ObservableCollection<MonitorInfo> AvailableScreens { get; } = new ObservableCollection<MonitorInfo>();
 
+        public Array AvailableFontWeights { get; } = new[]
+        {
+            "Thin",
+            "Light",
+            "Regular",
+            "Medium",
+            "Semibold",
+            "Bold",
+            "Extrabold",
+            "Black"
+        };
+
         public ICommand ToggleEspCommand { get; }
         public ICommand StartEspCommand { get; }
 
@@ -201,6 +213,19 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
             }
         }
 
+        public bool EspPlayerWeapon
+        {
+            get => App.Config.UI.EspPlayerWeapon;
+            set
+            {
+                if (App.Config.UI.EspPlayerWeapon != value)
+                {
+                    App.Config.UI.EspPlayerWeapon = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool EspPlayerDistance
         {
             get => App.Config.UI.EspPlayerDistance;
@@ -274,6 +299,19 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
                 if (App.Config.UI.EspAIHealth != value)
                 {
                     App.Config.UI.EspAIHealth = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool EspAIWeapon
+        {
+            get => App.Config.UI.EspAIWeapon;
+            set
+            {
+                if (App.Config.UI.EspAIWeapon != value)
+                {
+                    App.Config.UI.EspAIWeapon = value;
                     OnPropertyChanged();
                 }
             }
@@ -897,6 +935,32 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
                 }
             }
         }
+        
+        public bool MiniRadarSelfLock
+        {
+            get => App.Config.UI.MiniRadar.SelfLock;
+            set
+            {
+                if (App.Config.UI.MiniRadar.SelfLock != value)
+                {
+                    App.Config.UI.MiniRadar.SelfLock = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        
+        public float MiniRadarZoomLevel
+        {
+            get => App.Config.UI.MiniRadar.ZoomLevel;
+            set
+            {
+                if (Math.Abs(App.Config.UI.MiniRadar.ZoomLevel - value) > float.Epsilon)
+                {
+                    App.Config.UI.MiniRadar.ZoomLevel = Math.Max(0.5f, Math.Min(10f, value)); // Clamp between 0.5 and 10
+                    OnPropertyChanged();
+                }
+            }
+        }
         #endregion
 
         public string EspFontFamily
@@ -908,6 +972,21 @@ namespace LoneEftDmaRadar.UI.Radar.ViewModels
                 if (!string.Equals(App.Config.UI.EspFontFamily, newVal, StringComparison.Ordinal))
                 {
                     App.Config.UI.EspFontFamily = newVal;
+                    ESPManager.ApplyFontConfig();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string EspFontWeight
+        {
+            get => App.Config.UI.EspFontWeight;
+            set
+            {
+                var newVal = value ?? "Regular";
+                if (!string.Equals(App.Config.UI.EspFontWeight, newVal, StringComparison.Ordinal))
+                {
+                    App.Config.UI.EspFontWeight = newVal;
                     ESPManager.ApplyFontConfig();
                     OnPropertyChanged();
                 }

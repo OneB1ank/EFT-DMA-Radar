@@ -26,6 +26,7 @@ SOFTWARE.
  *
 */
 
+using System.Collections.Generic;
 using LoneEftDmaRadar.Misc.Services;
 using LoneEftDmaRadar.Tarkov.GameWorld.Player.Helpers;
 using LoneEftDmaRadar.Tarkov.Unity.Collections;
@@ -46,6 +47,10 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         /// Address of InventoryController field.
         /// </summary>
         public ulong InventoryControllerAddr { get; }
+        /// <summary>
+        /// Hands Controller field address.
+        /// </summary>
+        public ulong HandsControllerAddr { get; }
         /// <summary>
         /// ObservedPlayerController for non-clientplayer players.
         /// </summary>
@@ -76,7 +81,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         public override PlayerType Type
         {
             get => _type;
-            protected set => _type = value;
+            set => _type = value;
         }
         /// <summary>
         /// Player Alerts.
@@ -126,14 +131,28 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         /// Player's Current Health Status
         /// </summary>
         public Enums.ETagStatus HealthStatus { get; private set; } = Enums.ETagStatus.Healthy;
+        /// <summary>
+        /// Raid ID for this player session.
+        /// </summary>
+        public int RaidId { get; private set; }
+
+        /// <summary>
+        /// Player ID for this player session.
+        /// </summary>
+        public int PlayerId { get; private set; }
 
         internal ObservedPlayer(ulong playerBase) : base(playerBase)
         {
             var localPlayer = Memory.LocalPlayer;
             ArgumentNullException.ThrowIfNull(localPlayer, nameof(localPlayer));
+
+            RaidId = Memory.ReadValue<int>(this + Offsets.ObservedPlayerView.RaidId);
+            PlayerId = Memory.ReadValue<int>(this + Offsets.ObservedPlayerView.Id);
+
             ObservedPlayerController = Memory.ReadPtr(this + Offsets.ObservedPlayerView.ObservedPlayerController);
             ArgumentOutOfRangeException.ThrowIfNotEqual(this, Memory.ReadValue<ulong>(ObservedPlayerController + Offsets.ObservedPlayerController.PlayerView), nameof(ObservedPlayerController));
             InventoryControllerAddr = ObservedPlayerController + Offsets.ObservedPlayerController.InventoryController;
+            HandsControllerAddr = ObservedPlayerController + Offsets.ObservedPlayerController.HandsController;
             ObservedHealthController = Memory.ReadPtr(ObservedPlayerController + Offsets.ObservedPlayerController.HealthController);
             ArgumentOutOfRangeException.ThrowIfNotEqual(this, Memory.ReadValue<ulong>(ObservedHealthController + Offsets.ObservedHealthController._player), nameof(ObservedHealthController));
             CorpseAddr = ObservedHealthController + Offsets.ObservedHealthController._playerCorpse;
@@ -323,6 +342,133 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
             catch (Exception ex)
             {
                 DebugLogger.LogDebug($"ERROR updating Health Status for '{Name}': {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Check if this player is Santa Claus by checking equipment IDs.
+        /// Santa has a specific backpack (61b9e1aaef9a1b5d6a79899a).
+        /// </summary>
+        public void CheckSanta()
+        {
+            if (!IsAI || Type != PlayerType.AIBoss)
+                return;
+
+            try
+            {
+                var inventorycontroller = Memory.ReadPtr(InventoryControllerAddr);
+                var inventory = Memory.ReadPtr(inventorycontroller + Offsets.InventoryController.Inventory);
+                var equipment = Memory.ReadPtr(inventory + Offsets.Inventory.Equipment);
+                var slotsPtr = Memory.ReadPtr(equipment + Offsets.InventoryEquipment._cachedSlots);
+
+                using var slotsArray = UnityArray<ulong>.Create(slotsPtr, true);
+                if (slotsArray.Count < 1)
+                    return;
+
+                foreach (var slotPtr in slotsArray)
+                {
+                    var namePtr = Memory.ReadPtr(slotPtr + Offsets.Slot.ID);
+                    if (namePtr == 0)
+                        continue;
+
+                    var slotName = Memory.ReadUnityString(namePtr);
+                    if (slotName != "Backpack")
+                        continue;
+
+                    var containedItem = Memory.ReadPtr(slotPtr + Offsets.Slot.ContainedItem);
+                    if (containedItem == 0)
+                        continue;
+
+                    var inventorytemplate = Memory.ReadPtr(containedItem + Offsets.LootItem.Template);
+                    if (inventorytemplate == 0)
+                        continue;
+
+                    var mongoId = Memory.ReadValue<MongoID>(inventorytemplate + Offsets.ItemTemplate._id);
+                    var itemId = mongoId.ReadString();
+
+                    if (itemId == "61b9e1aaef9a1b5d6a79899a") // Santa's backpack!
+                    {
+                        if (Name != "Santa")
+                        {
+                            Name = "Santa";
+                        }
+                        return;
+                    }
+                }
+            }
+            catch
+            {
+                // silently skip
+            }
+        }
+
+        /// <summary>
+        /// Check if this player is Zryachiy by checking equipment IDs.
+        /// Zryachiy has specific FaceCover (63626d904aa74b8fe30ab426) and Headwear (636270263f2495c26f00b007).
+        /// </summary>
+        public void CheckZryachiy()
+        {
+            if (!IsAI || Type != PlayerType.AIBoss)
+                return;
+
+            try
+            {
+                var inventorycontroller = Memory.ReadPtr(InventoryControllerAddr);
+                var inventory = Memory.ReadPtr(inventorycontroller + Offsets.InventoryController.Inventory);
+                var equipment = Memory.ReadPtr(inventory + Offsets.Inventory.Equipment);
+                var slotsPtr = Memory.ReadPtr(equipment + Offsets.InventoryEquipment._cachedSlots);
+
+                using var slotsArray = UnityArray<ulong>.Create(slotsPtr, true);
+                if (slotsArray.Count < 1)
+                    return;
+
+                // Zryachiy equipment IDs to check
+                var zryachiyItems = new HashSet<string>
+                {
+                    "63626d904aa74b8fe30ab426",
+                    "636270263f2495c26f00b007"
+                };
+
+                bool hasZryachiyEquipment = false;
+
+                foreach (var slotPtr in slotsArray)
+                {
+                    var namePtr = Memory.ReadPtr(slotPtr + Offsets.Slot.ID);
+                    if (namePtr == 0)
+                        continue;
+
+                    var slotName = Memory.ReadUnityString(namePtr);
+
+                    // Only check FaceCover and Headwear slots
+                    if (slotName != "FaceCover" && slotName != "Headwear")
+                        continue;
+
+                    var containedItem = Memory.ReadPtr(slotPtr + Offsets.Slot.ContainedItem);
+                    if (containedItem == 0)
+                        continue;
+
+                    var inventorytemplate = Memory.ReadPtr(containedItem + Offsets.LootItem.Template);
+                    if (inventorytemplate == 0)
+                        continue;
+
+                    var mongoId = Memory.ReadValue<MongoID>(inventorytemplate + Offsets.ItemTemplate._id);
+                    var itemId = mongoId.ReadString();
+
+                    if (zryachiyItems.Contains(itemId))
+                    {
+                        hasZryachiyEquipment = true;
+                        break;
+                    }
+                }
+
+                if (hasZryachiyEquipment && Name != "Zryachiy")
+                {
+                    Name = "Zryachiy";
+                }
+            }
+            catch
+            {
+                // silently skip
             }
         }
 

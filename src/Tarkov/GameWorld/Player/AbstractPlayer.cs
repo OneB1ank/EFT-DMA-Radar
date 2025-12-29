@@ -29,7 +29,6 @@ SOFTWARE.
 using Collections.Pooled;
 using LoneEftDmaRadar.Misc;
 using LoneEftDmaRadar.Tarkov.GameWorld.Loot;
-using LoneEftDmaRadar.Tarkov.GameWorld.Loot.Helpers;
 using LoneEftDmaRadar.Tarkov.GameWorld.Player.Helpers;
 using LoneEftDmaRadar.Tarkov.Unity;
 using LoneEftDmaRadar.Tarkov.Unity.Structures;
@@ -40,7 +39,6 @@ using LoneEftDmaRadar.UI.Skia;
 using LoneEftDmaRadar.Web.TarkovDev.Data;
 using VmmSharpEx.Scatter;
 using static LoneEftDmaRadar.Tarkov.Unity.Structures.UnityTransform;
-using System.Buffers;
 
 namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
 {
@@ -57,6 +55,16 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         protected static int _lastGroupNumber;
 
         /// <summary>
+        /// Track the current RaidId to detect raid changes.
+        /// </summary>
+        private static int _currentRaidId;
+
+        /// <summary>
+        /// Track the current PlayerId to detect raid changes.
+        /// </summary>
+        private static int _currentPlayerId;
+
+        /// <summary>
         /// Set of temporary marked teammates (by player Base address).
         /// Cleared on each raid end.
         /// </summary>
@@ -71,6 +79,8 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         {
             _groups.Clear();
             _lastGroupNumber = default;
+            _currentRaidId = 0;
+            _currentPlayerId = 0;
             lock (_tempTeammates)
             {
                 _tempTeammates.Clear();
@@ -122,6 +132,395 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         public virtual void UpdateTypeForTeammate(bool isTeammate)
         {
             // do nothing
+        }
+
+        /// <summary>
+        /// Sets the player's GroupID after construction.
+        /// </summary>
+        protected void SetGroupId(int groupId)
+        {
+            GroupID = groupId;
+        }
+
+        /// <summary>
+        /// Distance threshold for team detection (in meters).
+        /// </summary>
+        private const float TeammateDetectionDistance = 15.0f;
+
+        /// <summary>
+        /// Distance threshold for PRE-RAID team detection (in meters).
+        /// Uses a more conservative threshold since players are closer together at spawn.
+        /// </summary>
+        private const float PreRaidTeammateDetectionDistance = 10.0f;
+
+        /// <summary>
+        /// Fixed GroupID assigned to local player's team.
+        /// </summary>
+        private const int LocalPlayerTeamGroupId = 999;
+
+        /// <summary>
+        /// Detects teams based on player proximity at raid start.
+        /// Players within 20m of each other are considered teammates.
+        /// Players within 20m of LocalPlayer are automatically marked as friendly.
+        /// Uses cached team data if available for the same RaidId and PlayerId.
+        /// Clears cache only when RaidId/PlayerId changes (new raid).
+        /// </summary>
+        public static void DetectTeams(LocalPlayer localPlayer, IEnumerable<AbstractPlayer> allPlayers)
+        {
+            if (localPlayer == null || allPlayers == null)
+                return;
+
+            if (_currentRaidId != 0 && (_currentRaidId != localPlayer.RaidId || _currentPlayerId != localPlayer.PlayerId))
+            {
+                DebugLogger.LogDebug($"[TeamDetection] RaidId/PlayerId changed from {_currentRaidId}/{_currentPlayerId} to {localPlayer.RaidId}/{localPlayer.PlayerId}, clearing old cache");
+                RaidInfoCache.Clear();
+            }
+            _currentRaidId = localPlayer.RaidId;
+            _currentPlayerId = localPlayer.PlayerId;
+
+            _lastGroupNumber = 0;
+
+            var candidates = allPlayers
+                .Where(p => p is not LocalPlayer && p.IsHuman && p.IsAlive && p.IsActive)
+                .ToList();
+
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var cachedTeams = RaidInfoCache.LoadTeams(localPlayer.RaidId, localPlayer.PlayerId);
+            if (cachedTeams != null && cachedTeams.Count > 0)
+            {
+                ApplyCache(cachedTeams, candidates);
+                return;
+            }
+
+            var teams = ClusterPlayers(candidates, TeammateDetectionDistance);
+            var assignedTeams = AssignGroups(teams, localPlayer);
+
+            RaidInfoCache.SaveTeams(localPlayer.RaidId, localPlayer.PlayerId, assignedTeams);
+        }
+
+        /// <summary>
+        /// Detects teams BEFORE raid starts (during pre-raid phase when hands are empty).
+        /// Uses a more conservative distance threshold (10m) for more accurate detection at spawn points.
+        /// Applies cached team data if available for the same RaidId and PlayerId.
+        /// </summary>
+        /// <param name="localPlayer">The local player.</param>
+        /// <param name="allPlayers">All players in the game world.</param>
+        public static void DetectTeamsPreRaid(LocalPlayer localPlayer, IEnumerable<AbstractPlayer> allPlayers)
+        {
+            if (localPlayer == null || allPlayers == null)
+                return;
+
+            // Skip if Scav (Scavs don't have teams)
+            if (localPlayer.IsScav)
+                return;
+
+            // Initialize RaidId/PlayerId tracking if not already done
+            if (_currentRaidId == 0 || _currentRaidId != localPlayer.RaidId || _currentPlayerId != localPlayer.PlayerId)
+            {
+                DebugLogger.LogDebug($"[TeamDetection-PreRaid] RaidId/PlayerId set to {localPlayer.RaidId}/{localPlayer.PlayerId}");
+                _currentRaidId = localPlayer.RaidId;
+                _currentPlayerId = localPlayer.PlayerId;
+                _lastGroupNumber = 0;
+            }
+
+            var candidates = allPlayers
+                .Where(p => p is not LocalPlayer && p.IsHuman && p.IsAlive && p.IsActive)
+                .ToList();
+
+            if (candidates.Count == 0)
+            {
+                DebugLogger.LogDebug("[TeamDetection-PreRaid] No candidates found");
+                return;
+            }
+
+            // Check cache first - if we already have cached data, don't re-detect
+            var cachedTeams = RaidInfoCache.LoadTeams(localPlayer.RaidId, localPlayer.PlayerId);
+            if (cachedTeams != null && cachedTeams.Count > 0)
+            {
+                DebugLogger.LogDebug($"[TeamDetection-PreRaid] Using cached data ({cachedTeams.Count} players)");
+                ApplyCache(cachedTeams, candidates);
+                return;
+            }
+
+            // Run detection with pre-raid distance threshold (10m)
+            DebugLogger.LogDebug("[TeamDetection-PreRaid] Running detection with 10m threshold");
+            var teams = ClusterPlayers(candidates, PreRaidTeammateDetectionDistance);
+            var assignedTeams = AssignGroups(teams, localPlayer);
+
+            RaidInfoCache.SaveTeams(localPlayer.RaidId, localPlayer.PlayerId, assignedTeams);
+            DebugLogger.LogDebug($"[TeamDetection-PreRaid] Detected {assignedTeams.Count} players in {teams.Count} team(s)");
+        }
+
+        /// <summary>
+        /// Apply cached team data directly to players without re-running detection.
+        /// </summary>
+        private static void ApplyCache(Dictionary<int, int> cachedTeams, List<AbstractPlayer> candidates)
+        {
+            int appliedCount = 0;
+            int teammateCount = 0;
+
+            foreach (var player in candidates)
+            {
+                if (player is ObservedPlayer obs)
+                {
+                    if (cachedTeams.TryGetValue(obs.PlayerId, out int groupId))
+                    {
+                        bool isTeammate = (groupId == LocalPlayerTeamGroupId);
+
+                        obs.SetGroupId(groupId);
+                        if (isTeammate)
+                        {
+                            obs.UpdateTypeForTeammate(true);
+                            teammateCount++;
+                        }
+                        appliedCount++;
+                    }
+                }
+            }
+            DebugLogger.LogDebug($"[TeamDetection] Applied cached team data: {appliedCount} players, {teammateCount} teammate(s)");
+        }
+
+        /// <summary>
+        /// Clusters players into teams using connected components algorithm.
+        /// </summary>
+        private static List<List<AbstractPlayer>> ClusterPlayers(
+            List<AbstractPlayer> players, float threshold)
+        {
+            var visited = new HashSet<AbstractPlayer>();
+            var teams = new List<List<AbstractPlayer>>();
+            float thresholdSq = threshold * threshold;
+
+            foreach (var player in players)
+            {
+                if (!visited.Contains(player))
+                {
+                    var team = new List<AbstractPlayer>();
+                    FindComponent(player, players, visited, team, thresholdSq);
+                    teams.Add(team);
+                }
+            }
+
+            return teams;
+        }
+
+        /// <summary>
+        /// BFS to find all players in the same connected component (team).
+        /// </summary>
+        private static void FindComponent(
+            AbstractPlayer start,
+            List<AbstractPlayer> allPlayers,
+            HashSet<AbstractPlayer> visited,
+            List<AbstractPlayer> component,
+            float thresholdSq)
+        {
+            var queue = new Queue<AbstractPlayer>();
+            queue.Enqueue(start);
+            visited.Add(start);
+            component.Add(start);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+
+                foreach (var other in allPlayers)
+                {
+                    if (!visited.Contains(other))
+                    {
+                        var distSq = Vector3.DistanceSquared(current.Position, other.Position);
+
+                        if (!ValidPosition(current.Position) || !ValidPosition(other.Position))
+                            continue;
+
+                        if (distSq <= thresholdSq)
+                        {
+                            visited.Add(other);
+                            component.Add(other);
+                            queue.Enqueue(other);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validates that a position is usable for distance calc.
+        /// </summary>
+        private static bool ValidPosition(Vector3 pos)
+        {
+            return pos != Vector3.Zero &&
+                   !float.IsNaN(pos.X) &&
+                   !float.IsInfinity(pos.X);
+        }
+
+        /// <summary>
+        /// Assigns GroupIDs to detected teams and marks teammates.
+        /// </summary>
+        private static Dictionary<int, int> AssignGroups(
+            List<List<AbstractPlayer>> teams,
+            LocalPlayer localPlayer)
+        {
+            int totalTeammates = 0;
+            int totalEnemyTeams = 0;
+            var assignedTeams = new Dictionary<int, int>();
+
+            foreach (var team in teams)
+            {
+                bool isLocalPlayerTeam = team.Any(p =>
+                {
+                    if (!ValidPosition(p.Position))
+                        return false;
+                    var localPos = localPlayer.Position;
+                    if (!ValidPosition(localPos))
+                        return false;
+                    var dist = Vector3.Distance(p.Position, localPos);
+                    return dist <= TeammateDetectionDistance;
+                });
+
+                if (isLocalPlayerTeam)
+                {
+                    foreach (var player in team)
+                    {
+                        if (player is ObservedPlayer obs)
+                        {
+                            obs.SetGroupId(LocalPlayerTeamGroupId);
+                            obs.UpdateTypeForTeammate(true);
+                            assignedTeams[obs.PlayerId] = LocalPlayerTeamGroupId;
+                            totalTeammates++;
+                        }
+                    }
+                    DebugLogger.LogDebug($"[TeamDetection] Detected {team.Count} teammate(s) nearby - assigned GroupID {LocalPlayerTeamGroupId}");
+                }
+                else if (team.Count > 1) // Only assign GroupID to non-solo enemy teams
+                {
+                    int enemyGroupId = Interlocked.Increment(ref _lastGroupNumber);
+                    totalEnemyTeams++;
+                    DebugLogger.LogDebug($"[TeamDetection] Detected enemy team of {team.Count} player(s) - assigned GroupID {enemyGroupId}");
+
+                    foreach (var player in team)
+                    {
+                        if (player is ObservedPlayer obs)
+                        {
+                            obs.SetGroupId(enemyGroupId);
+                            assignedTeams[obs.PlayerId] = enemyGroupId;
+                        }
+                    }
+                }
+            }
+
+            DebugLogger.LogDebug($"[TeamDetection] {totalTeammates} teammate(s), {totalEnemyTeams} enemy team(s)");
+            return assignedTeams;
+        }
+
+        /// <summary>
+        /// Detects Boss followers by proximity to Boss characters.
+        /// Scavs within a certain distance of a Boss are marked as Guards.
+        /// </summary>
+        public static void DetectBossFollowers(LocalPlayer localPlayer, IEnumerable<AbstractPlayer> allPlayers)
+        {
+            if (localPlayer == null || allPlayers == null)
+                return;
+
+            var appliedGuards = RaidInfoCache.LoadBossFollowers(localPlayer.RaidId, localPlayer.PlayerId, allPlayers);
+
+            if (appliedGuards.HasValue)
+                return;
+
+            const float GuardDetectionDistance = 10.0f;
+            float thresholdSq = GuardDetectionDistance * GuardDetectionDistance;
+
+            var bosses = allPlayers.Where(p => p.Type == PlayerType.AIBoss && p.IsActive && p.IsAlive).ToList();
+            var potentialGuards = allPlayers.Where(p => p.Type == PlayerType.AIScav && p.IsActive && p.IsAlive).ToList();
+
+            if (bosses.Count == 0 || potentialGuards.Count == 0)
+                return;
+
+            int guardsFound = 0;
+            var guardDataToSave = new Dictionary<int, string>();
+
+            foreach (var boss in bosses)
+            {
+                if (!ValidPosition(boss.Position))
+                    continue;
+
+                foreach (var scavenger in potentialGuards)
+                {
+                    if (scavenger.Type == PlayerType.AIGuard)
+                        continue;
+
+                    if (!ValidPosition(scavenger.Position))
+                        continue;
+
+                    var distSq = Vector3.DistanceSquared(boss.Position, scavenger.Position);
+
+                    if (distSq <= thresholdSq)
+                    {
+                        if (scavenger is ObservedPlayer obs && obs.RaidId != 0)
+                        {
+                            obs.Type = PlayerType.AIGuard;
+                            obs.Name = "Guard";
+                            guardDataToSave[obs.RaidId] = "Guard";
+                            guardsFound++;
+                            DebugLogger.LogDebug($"[BossGuard] Detected guard '{obs.Name}' near boss '{boss.Name}' ({MathF.Sqrt(distSq):F1}m)");
+                        }
+                    }
+                }
+            }
+
+            if (guardDataToSave.Count > 0)
+            {
+                RaidInfoCache.SaveBossFollowers(localPlayer.RaidId, localPlayer.PlayerId, guardDataToSave);
+            }
+
+            if (guardsFound > 0)
+            {
+                DebugLogger.LogDebug($"[BossGuard] Total guards detected: {guardsFound}");
+            }
+        }
+
+        /// <summary>
+        /// Detects Santa Claus by checking equipment IDs.
+        /// Santa has a specific backpack (61b9e1aaef9a1b5d6a79899a).
+        /// </summary>
+        public static void DetectSanta(IEnumerable<AbstractPlayer> allPlayers)
+        {
+            if (allPlayers == null)
+                return;
+
+            foreach (var player in allPlayers)
+            {
+                if (player is ObservedPlayer obs)
+                {
+                    obs.CheckSanta();
+                    if (obs.Name == "Santa")
+                        return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detects Zryachiy by checking equipment IDs.
+        /// Zryachiy has specific equipment: 63626d904aa74b8fe30ab426, 636270263f2495c26f00b007.
+        /// </summary>
+        public static void DetectZryachiy(IEnumerable<AbstractPlayer> allPlayers)
+        {
+            if (allPlayers == null)
+                return;
+
+            // not lighthouse map, skip
+            if (Memory.Game == null || !Memory.Game.MapID.Equals("Lighthouse", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            foreach (var player in allPlayers)
+            {
+                if (player is ObservedPlayer obs)
+                {
+                    obs.CheckZryachiy();
+                }
+            }
         }
 
         #endregion
@@ -188,9 +587,9 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                     playerBase,
                     addr => AllocateInternal(addr));
             }
-            catch (Exception ex)
+            catch
             {
-                DebugLogger.LogDebug($"ERROR during Player Allocation for player @ 0x{playerBase.ToString("X")}: {ex}");
+                // silently skip
             }
         }
 
@@ -233,7 +632,7 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         /// <summary>
         /// Type of player unit.
         /// </summary>
-        public virtual PlayerType Type { get; protected set; }
+        public virtual PlayerType Type { get; set; }
 
         private Vector2 _rotation;
         /// <summary>
@@ -303,7 +702,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
             {
                 if (PlayerBones.TryGetValue(bone, out var boneTransform))
                 {
-                    DebugLogger.LogDebug($"Resetting transform for bone '{bone}' for Player '{Name ?? "Unknown"}'");
                     PlayerBones[bone] = new UnityTransform(boneTransform.TransformInternal);
                 }
             }
@@ -1177,6 +1575,8 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
                     };
                 case PlayerType.AIScav:
                     return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintScav, SKPaints.TextScav);
+                case PlayerType.AIGuard:
+                    return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintGuard, SKPaints.TextGuard);
                 case PlayerType.AIRaider:
                     return new ValueTuple<SKPaint, SKPaint>(SKPaints.PaintRaider, SKPaints.TextRaider);
                 case PlayerType.AIBoss:

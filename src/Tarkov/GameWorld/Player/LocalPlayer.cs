@@ -37,6 +37,16 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
     public sealed class LocalPlayer : ClientPlayer
     {
         /// <summary>
+        /// Raid ID for this player session (persistent across reconnects).
+        /// </summary>
+        public int RaidId { get; private set; }
+
+        /// <summary>
+        /// Player ID for this player session.
+        /// </summary>
+        public int PlayerId { get; private set; }
+
+        /// <summary>
         /// Firearm Manager for tracking weapon/ammo/ballistics.
         /// </summary>
         public FirearmManager FirearmManager { get; private set; }
@@ -93,6 +103,10 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
             if (!(classType == "LocalPlayer" || classType == "ClientPlayer"))
                 throw new ArgumentOutOfRangeException(nameof(classType));
             IsHuman = true;
+
+            RaidId = Memory.ReadValue<int>(this + Offsets.Player.RaidId);
+            PlayerId = Memory.ReadValue<int>(this + Offsets.Player.PlayerId);
+
             FirearmManager = new FirearmManager(this);
 
             if (IsPmc)
@@ -114,7 +128,6 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         {
             try
             {
-                HandsController = Memory.ReadPtr(Base + Offsets.Player._handsController, false);
                 FirearmManager?.Update();
             }
             catch (Exception ex)
@@ -139,26 +152,28 @@ namespace LoneEftDmaRadar.Tarkov.GameWorld.Player
         }
 
         /// <summary>
-        /// Initializes and updates the look raycast transform using memory scatter reads.
+        /// Initializes and updates the look raycast transform and handsController using memory scatter reads.
         /// Called when aimview is enabled.
         /// </summary>
         public override void OnRealtimeLoop(VmmScatter scatter)
         {
             base.OnRealtimeLoop(scatter);
 
-            try
+            scatter.PrepareReadPtr(Base + Offsets.Player._handsController);
+            scatter.PrepareReadPtr(Base + Offsets.Player._playerLookRaycastTransform);
+
+            scatter.Completed += (sender, s) =>
             {
-                var transformPtr = Memory.ReadPtr(Base + Offsets.Player._playerLookRaycastTransform, false);
+                _ = s.ReadPtr(Base + Offsets.Player._handsController, out VmmSharpEx.VmmPointer hands);
+                HandsController = hands;
+
+                _ = s.ReadPtr(Base + Offsets.Player._playerLookRaycastTransform, out VmmSharpEx.VmmPointer transformPtr);
 
                 if (transformPtr != 0x0)
                     _lookRaycastTransform = new UnityTransform(transformPtr);
                 else
                     _lookRaycastTransform = null;
-            }
-            catch
-            {
-                _lookRaycastTransform = null;
-            }
+            };
         }
 
         public override void OnValidateTransforms()

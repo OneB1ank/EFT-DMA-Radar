@@ -302,6 +302,46 @@ namespace LoneEftDmaRadar.DMA
                                     CameraManager.UpdateViewportRes();
                                     DebugLogger.LogDebug("[Memory] CameraManager initialized for raid");
                                     cameraInitStart = DateTime.UtcNow;
+
+                                    // Run distance-based team detection
+                                    try
+                                    {
+                                        Tarkov.GameWorld.Player.AbstractPlayer.DetectTeams(game.LocalPlayer, game.Players);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        DebugLogger.LogDebug($"[Memory] Team detection failed: {ex.Message}");
+                                    }
+
+                                    // Run boss follower detection
+                                    try
+                                    {
+                                        Tarkov.GameWorld.Player.AbstractPlayer.DetectBossFollowers(game.LocalPlayer, game.Players);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        DebugLogger.LogDebug($"[Memory] Boss follower detection failed: {ex.Message}");
+                                    }
+
+                                    // Run Santa detection
+                                    try
+                                    {
+                                        Tarkov.GameWorld.Player.AbstractPlayer.DetectSanta(game.Players);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        DebugLogger.LogDebug($"[Memory] Santa detection failed: {ex.Message}");
+                                    }
+
+                                    // Run Zryachiy detection
+                                    try
+                                    {
+                                        Tarkov.GameWorld.Player.AbstractPlayer.DetectZryachiy(game.Players);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        DebugLogger.LogDebug($"[Memory] Zryachiy detection failed: {ex.Message}");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

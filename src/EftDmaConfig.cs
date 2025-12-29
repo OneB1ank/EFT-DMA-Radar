@@ -468,6 +468,18 @@ namespace LoneEftDmaRadar
         public bool EspAIDistance { get; set; } = true;
 
         /// <summary>
+        /// Show Player Weapon in ESP.
+        /// </summary>
+        [JsonPropertyName("espPlayerWeapon")]
+        public bool EspPlayerWeapon { get; set; } = false;
+
+        /// <summary>
+        /// Show AI Weapon in ESP.
+        /// </summary>
+        [JsonPropertyName("espAIWeapon")]
+        public bool EspAIWeapon { get; set; } = false;
+
+        /// <summary>
         /// Show ESP Overlay.
         /// </summary>
         [JsonPropertyName("showESP")]
@@ -586,6 +598,12 @@ namespace LoneEftDmaRadar
         /// </summary>
         [JsonPropertyName("espFontFamily")]
         public string EspFontFamily { get; set; } = "Segoe UI";
+
+        /// <summary>
+        /// Font weight used for ESP text (Regular, Medium, Semibold, Bold, etc.).
+        /// </summary>
+        [JsonPropertyName("espFontWeight")]
+        public string EspFontWeight { get; set; } = "Regular";
 
         /// <summary>
         /// Small font size used for ESP text (loot labels, etc).
@@ -1029,6 +1047,18 @@ namespace LoneEftDmaRadar
 
         [JsonPropertyName("invertColors")]
         public bool InvertColors { get; set; } = true;
+        
+        /// <summary>
+        /// Lock mini radar to follow local player (player always centered).
+        /// </summary>
+        [JsonPropertyName("selfLock")]
+        public bool SelfLock { get; set; } = false;
+        
+        /// <summary>
+        /// Zoom level for mini radar when SelfLock is enabled. 1.0 = full map, higher = more zoomed in.
+        /// </summary>
+        [JsonPropertyName("zoomLevel")]
+        public float ZoomLevel { get; set; } = 2.0f;
     }
 
     public sealed class QuestHelperConfig

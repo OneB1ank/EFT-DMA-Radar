@@ -1,7 +1,7 @@
 ﻿﻿/*
  * Lone EFT DMA Radar
  * Brought to you by Lone (Lone DMA)
- * 
+ *
 MIT License
 
 Copyright (c) 2025 Lone DMA
@@ -30,12 +30,22 @@ using Collections.Pooled;
 using LoneEftDmaRadar.Misc;
 using LoneEftDmaRadar.Tarkov.GameWorld.Player;
 using LoneEftDmaRadar.Tarkov.GameWorld.Player.Helpers;
+using LoneEftDmaRadar.Web.TarkovDev.Data;
 using SkiaSharp.Views.WPF;
 
 namespace LoneEftDmaRadar.UI.Skia
 {
     public sealed class PlayerInfoWidget : AbstractSKWidget
     {
+        // Column widths in pixels
+        private const float COL_GRP = 20f;
+        private const float COL_NAME = 50f;
+        private const float COL_HANDS = 120f;
+        private const float COL_SECURE = 65f;
+        private const float COL_VALUE = 30f;
+        private const float COL_DIST = 30f;
+        private const float COL_SPACING = 10f;
+
         /// <summary>
         /// Constructs a Player Info Overlay.
         /// </summary>
@@ -56,86 +66,77 @@ namespace LoneEftDmaRadar.UI.Skia
                 return;
             }
 
-            static string MakeRow(string c1, string c2, string c3)
-            {
-                // known widths: Name (10), Group (4), Value (10)
-                const int W1 = 10, W2 = 4, W3 = 10;
-                const int len = W1 + W2 + W3;
-
-                return string.Create(len, (c1, c2, c3), static (span, cols) =>
-                {
-                    int pos = 0;
-                    WriteAligned(span, ref pos, cols.c1, W1);
-                    WriteAligned(span, ref pos, cols.c2, W2);
-                    WriteAligned(span, ref pos, cols.c3, W3);
-                });
-            }
-
-            static void WriteAligned(Span<char> span, ref int pos, string value, int width)
-            {
-                int padding = width - value.Length;
-                if (padding < 0) padding = 0;
-
-                // write the value left-aligned
-                value.AsSpan(0, Math.Min(value.Length, width))
-                     .CopyTo(span.Slice(pos));
-
-                // pad the rest with spaces
-                span.Slice(pos + value.Length, padding).Fill(' ');
-
-                pos += width;
-            }
-
             // Sort & filter
             var localPos = localPlayer.Position;
             using var filteredPlayers = players
                 .Where(p => p.IsHumanHostileActive)
-                .OrderBy(p => Vector3.Distance(localPos, p.Position))
+                .OrderBy(p => Vector3.DistanceSquared(localPos, p.Position))
                 .ToPooledList();
 
             // Setup Frame and Draw Header
             var font = SKFonts.InfoWidgetFont;
             float pad = 2.5f * ScaleFactor;
-            float maxLength = 0f;
             var drawPt = new SKPoint(
                 ClientRectangle.Left + pad,
                 ClientRectangle.Top + font.Spacing / 2 + pad);
 
-            string header = MakeRow("Name", "Grp", "Value");
-
-            var len = font.MeasureText(header);
-            if (len > maxLength) maxLength = len;
-
-            Size = new SKSize(maxLength + pad, (1 + filteredPlayers.Count) * font.Spacing); // 1 extra for header
+            // Calculate total width
+            float totalWidth = COL_GRP + COL_NAME + COL_HANDS + COL_SECURE + COL_VALUE + COL_DIST + (COL_SPACING * 5);
+            Size = new SKSize(totalWidth + pad, (1 + filteredPlayers.Count) * font.Spacing);
             Draw(canvas); // Background/frame
 
-            canvas.DrawText(header,
-                drawPt,
-                SKTextAlign.Left,
-                font,
-                SKPaints.TextPlayersOverlay);
+            // Draw header
+            float x = drawPt.X;
+            DrawColumn(canvas, "Grp", ref x, COL_GRP, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+            DrawColumn(canvas, "Name", ref x, COL_NAME, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+            DrawColumn(canvas, "In Hands", ref x, COL_HANDS, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+            DrawColumn(canvas, "Secure", ref x, COL_SECURE, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+            DrawColumn(canvas, "Value", ref x, COL_VALUE, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+            DrawColumn(canvas, "Dist", ref x, COL_DIST, font, SKPaints.TextPlayersOverlay, drawPt.Y);
+
             drawPt.Offset(0, font.Spacing);
 
             foreach (var player in filteredPlayers)
             {
-                string name = player.Name;
+                string name = Truncate(player.Name ?? "--", 10);
                 string grp = player.GroupID != -1 ? player.GroupID.ToString() : "--";
+                string hands = "--";
+                string secure = "--";
                 string value = "--";
+                string dist = "--";
 
                 if (player is ObservedPlayer obs)
                 {
-                    value = Utilities.FormatNumberKM(obs.Equipment.Value);
+                    hands = Truncate(obs.Equipment?.InHands?.ShortName ?? "--", 15);
+                    secure = Truncate(obs.Equipment?.SecuredContainer?.ShortName ?? "--", 10);
+                    value = Utilities.FormatNumberKM(obs.Equipment?.Value ?? 0);
+                    dist = ((int)Vector3.Distance(player.Position, localPos)).ToString();
                 }
 
-                string line = MakeRow(name, grp, value);
+                var paint = GetTextPaint(player);
+                x = drawPt.X;
+                DrawColumn(canvas, grp, ref x, COL_GRP, font, paint, drawPt.Y);
+                DrawColumn(canvas, name, ref x, COL_NAME, font, paint, drawPt.Y);
+                DrawColumn(canvas, hands, ref x, COL_HANDS, font, paint, drawPt.Y);
+                DrawColumn(canvas, secure, ref x, COL_SECURE, font, paint, drawPt.Y);
+                DrawColumn(canvas, value, ref x, COL_VALUE, font, paint, drawPt.Y);
+                DrawColumn(canvas, dist, ref x, COL_DIST, font, paint, drawPt.Y);
 
-                canvas.DrawText(line,
-                    drawPt,
-                    SKTextAlign.Left,
-                    font,
-                    GetTextPaint(player));
                 drawPt.Offset(0, font.Spacing);
             }
+        }
+
+        private static void DrawColumn(SKCanvas canvas, string text, ref float x, float width, SKFont font, SKPaint paint, float y)
+        {
+            canvas.DrawText(text, x, y, SKTextAlign.Left, font, paint);
+            x += width + COL_SPACING;
+        }
+
+        private static string Truncate(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+                return value;
+            return value.Substring(0, maxLength);
         }
 
         private static SKPaint GetTextPaint(AbstractPlayer player)
