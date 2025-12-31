@@ -115,6 +115,10 @@
                                   ToolTip="切换玩家信息小部件，提供关于突袭中玩家/Boss的信息。可以移动。"
                                   IsChecked="{Binding PlayerInfoWidget, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
+                        <CheckBox Content="战利品信息小部件"
+                                  ToolTip="切换显示战利品信息“小部件”的选项，该小部件会显示您团队副本中贵重战利品的相关信息。可以移动。"
+                                  IsChecked="{Binding LootInfoWidget, Mode=TwoWay}"
+                                  Margin="0,0,16,8" />
                         <CheckBox Content="连接队伍"
                                   ToolTip="通过半透明绿色线连接分组的玩家。不适用于您自己的队伍。"
                                   IsChecked="{Binding ConnectGroups, Mode=TwoWay}"
@@ -191,6 +195,43 @@
                                    Margin="8,0,0,0" />
                     </StackPanel>
 
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0,0,16,8">
+                        <TextBlock Text="脉冲速度"
+                                   VerticalAlignment="Center"
+                                   ToolTip="控制战利品脉冲动画的增长速度。" />
+                        <Slider x:Name="PulseSpeedSlider"
+                                Width="150"
+                                Margin="8,0"
+                                Minimum="10"
+                                Maximum="100"
+                                SmallChange="5"
+                                LargeChange="10"
+                                Value="{Binding PulseSpeed, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding Value, ElementName=PulseSpeedSlider, StringFormat=F0}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0,0,16,8">
+                        <TextBlock Text="脉冲持续时间（秒）"
+                                   VerticalAlignment="Center"
+                                   ToolTip="控制战利品脉冲动画的持续时间。" />
+                        <Slider x:Name="PulseDurationSlider"
+                                Width="150"
+                                Margin="8,0"
+                                Minimum="1.0"
+                                Maximum="10.0"
+                                SmallChange="0.5"
+                                LargeChange="1.0"
+                                Value="{Binding PulseDuration, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding Value, ElementName=PulseDurationSlider, StringFormat=F1}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0" />
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 

@@ -37,7 +37,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
 {
     /// <summary>
     /// SVG map implementation that pre-rasterizes layers to SKImage bitmaps for fast rendering.
-    /// Each layer is converted from vector to bitmap at load time, then drawn as a texture each frame.
+    /// Each layer is converted from vector to bitmap at 4x resolution at load time, then drawn as a texture each frame.
     /// </summary>
     public sealed class EftSvgMap : IEftMap
     {
@@ -52,7 +52,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         /// <summary>Redundant horizontal space to add around map boundaries.</summary>
         private const float HORIZONTAL_PADDING = 25f;
         /// <summary>Redundant vertical space to add around map boundaries.</summary>
-        private const float VERTICAL_PADDING = 100f;
+        private const float VERTICAL_PADDING = 200f;
 
         /// <summary>
         /// Construct a new map by loading each SVG layer from the supplied zip archive
@@ -132,7 +132,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             canvas.Translate(-mapBounds.Left, -mapBounds.Top);
             // Apply configured vector scaling
             canvas.Scale(Config.SvgScale, Config.SvgScale);
-            // Scale down by rasterization factor (images are 2x, render at 1x)
+            // Scale down by rasterization factor (images are 4x, render at 1x)
             canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
 
             var front = visible[^1];
@@ -176,6 +176,16 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             float fullWidth = baseLayer.RawWidth * Config.SvgScale;
             float fullHeight = baseLayer.RawHeight * Config.SvgScale;
 
+            // Calculate effective zoom range
+            float minZoomX = (fullWidth + HORIZONTAL_PADDING * 2f) / fullWidth * 100f;
+            float minZoomY = (fullHeight + VERTICAL_PADDING * 2f) / fullHeight * 100f;
+            float minZoom = Math.Max(minZoomX, minZoomY);
+
+            // Clamp zoom to valid range before computing bounds
+            // This prevents zoom from drifting beyond effective range
+            zoom = Math.Clamp(zoom, 1, (int)minZoom);
+            App.Config.UI.Zoom = zoom;
+
             var zoomWidth = fullWidth * (0.01f * zoom);
             var zoomHeight = fullHeight * (0.01f * zoom);
 
@@ -190,14 +200,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             var (constrainedBounds, wasZoomApplied) = ConstrainBoundsToMap(bounds, fullWidth, fullHeight, zoomWidth, zoomHeight, ref localPlayerMapPos);
             bounds = constrainedBounds;
 
-            if (!wasZoomApplied)
-            {
-                if (App.Config.UI.Zoom != _lastValidZoom)
-                {
-                    App.Config.UI.Zoom = _lastValidZoom;
-                }
-            }
-            else
+            if (wasZoomApplied)
             {
                 _lastValidZoom = zoom;
             }
@@ -238,7 +241,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             canvas.Translate(dx, dy);
             canvas.Scale(scale, scale);
             canvas.Scale(Config.SvgScale, Config.SvgScale);
-            // Scale down by rasterization factor (images are 2x, render at 1x)
+            // Scale down by rasterization factor (images are 4x, render at 1x)
             canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
 
             // Create paint with color inversion filter for dark mode visibility
@@ -259,6 +262,82 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             foreach (var layer in _layers)
             {
                 canvas.DrawImage(layer.Image, 0, 0, paint);
+            }
+
+            canvas.Restore();
+        }
+
+        public void RenderThumbnail(SKCanvas canvas, int width, int height, float playerHeight)
+        {
+            if (_layers.Length == 0) return;
+
+            // Filter layers by height (same logic as Draw method)
+            using var visible = new PooledList<RasterLayer>(capacity: 8);
+            foreach (var layer in _layers)
+            {
+                if (layer.IsHeightInRange(playerHeight))
+                    visible.Add(layer);
+            }
+
+            if (visible.Count == 0) return;
+            visible.Sort();
+
+            var baseLayer = _layers[0];
+            float mapW = baseLayer.RawWidth * Config.SvgScale;
+            float mapH = baseLayer.RawHeight * Config.SvgScale;
+
+            if (mapW <= 0 || mapH <= 0) return;
+
+            // Compute uniform scale to fit
+            float scaleX = width / mapW;
+            float scaleY = height / mapH;
+            float scale = Math.Min(scaleX, scaleY);
+
+            // Center
+            float scaledW = mapW * scale;
+            float scaledH = mapH * scale;
+            float dx = (width - scaledW) / 2f;
+            float dy = (height - scaledH) / 2f;
+
+            canvas.Save();
+            canvas.Translate(dx, dy);
+            canvas.Scale(scale, scale);
+            canvas.Scale(Config.SvgScale, Config.SvgScale);
+            // Scale down by rasterization factor (images are 4x, render at 1x)
+            canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
+
+            // Create paint with color inversion filter for dark mode visibility (configurable)
+            using var paint = new SKPaint();
+            if (App.Config.UI.MiniRadar.InvertColors)
+            {
+                paint.ColorFilter = SKColorFilter.CreateColorMatrix(new float[]
+                {
+                    -1,  0,  0, 0, 1, // R = 1 - R
+                     0, -1,  0, 0, 1, // G = 1 - G
+                     0,  0, -1, 0, 1, // B = 1 - B
+                     0,  0,  0, 1, 0  // A = A
+                });
+            }
+
+            // Draw only visible layers based on height (with dimming like Draw method)
+            var front = visible[^1];
+            foreach (var layer in visible)
+            {
+                bool dim = !Config.DisableDimming &&
+                           layer != front &&
+                           !front.CannotDimLowerLayers;
+
+                if (dim)
+                {
+                    using var dimPaint = new SKPaint();
+                    dimPaint.ColorFilter = paint.ColorFilter;
+                    dimPaint.Color = dimPaint.Color.WithAlpha(128); // 50% alpha for dimming
+                    canvas.DrawImage(layer.Image, 0, 0, dimPaint);
+                }
+                else
+                {
+                    canvas.DrawImage(layer.Image, 0, 0, paint);
+                }
             }
 
             canvas.Restore();
@@ -304,7 +383,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             // Translate to show the correct portion of the map
             canvas.Translate(-srcLeft, -srcTop);
             canvas.Scale(Config.SvgScale, Config.SvgScale);
-            // Scale down by rasterization factor (images are 2x, render at 1x)
+            // Scale down by rasterization factor (images are 4x, render at 1x)
             canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
 
             // Create paint with color inversion filter if enabled
@@ -324,6 +403,97 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             foreach (var layer in _layers)
             {
                 canvas.DrawImage(layer.Image, 0, 0, paint);
+            }
+
+            canvas.Restore();
+        }
+
+        public void RenderThumbnailCentered(SKCanvas canvas, int width, int height, float centerX, float centerY, float zoom, float playerHeight)
+        {
+            if (_layers.Length == 0) return;
+
+            // Filter layers by height (same logic as Draw method)
+            using var visible = new PooledList<RasterLayer>(capacity: 8);
+            foreach (var layer in _layers)
+            {
+                if (layer.IsHeightInRange(playerHeight))
+                    visible.Add(layer);
+            }
+
+            if (visible.Count == 0) return;
+            visible.Sort();
+
+            var baseLayer = _layers[0];
+            float mapW = baseLayer.RawWidth * Config.SvgScale;
+            float mapH = baseLayer.RawHeight * Config.SvgScale;
+
+            if (mapW <= 0 || mapH <= 0) return;
+
+            // Calculate the visible area size based on zoom
+            // zoom = 1.0 means show entire map, zoom = 2.0 means show half the map (2x zoomed in)
+            float visibleW = mapW / zoom;
+            float visibleH = mapH / zoom;
+
+            // Calculate the source rectangle (what part of the map to show)
+            float srcLeft = centerX - (visibleW / 2f);
+            float srcTop = centerY - (visibleH / 2f);
+
+            // Clamp to map bounds
+            srcLeft = Math.Max(0, Math.Min(srcLeft, mapW - visibleW));
+            srcTop = Math.Max(0, Math.Min(srcTop, mapH - visibleH));
+
+            // Scale factor to fit the visible area into the output size
+            float scaleX = width / visibleW;
+            float scaleY = height / visibleH;
+            float scale = Math.Min(scaleX, scaleY);
+
+            // Center in output
+            float scaledW = visibleW * scale;
+            float scaledH = visibleH * scale;
+            float dx = (width - scaledW) / 2f;
+            float dy = (height - scaledH) / 2f;
+
+            canvas.Save();
+            canvas.Translate(dx, dy);
+            canvas.Scale(scale, scale);
+            // Translate to show the correct portion of the map
+            canvas.Translate(-srcLeft, -srcTop);
+            canvas.Scale(Config.SvgScale, Config.SvgScale);
+            // Scale down by rasterization factor (images are 4x, render at 1x)
+            canvas.Scale(1f / RasterLayer.RasterScale, 1f / RasterLayer.RasterScale);
+
+            // Create paint with color inversion filter if enabled
+            using var paint = new SKPaint();
+            if (App.Config.UI.MiniRadar.InvertColors)
+            {
+                paint.ColorFilter = SKColorFilter.CreateColorMatrix(new float[]
+                {
+                    -1,  0,  0, 0, 1,
+                     0, -1,  0, 0, 1,
+                     0,  0, -1, 0, 1,
+                     0,  0,  0, 1, 0
+                });
+            }
+
+            // Draw only visible layers based on height (with dimming like Draw method)
+            var front = visible[^1];
+            foreach (var layer in visible)
+            {
+                bool dim = !Config.DisableDimming &&
+                           layer != front &&
+                           !front.CannotDimLowerLayers;
+
+                if (dim)
+                {
+                    using var dimPaint = new SKPaint();
+                    dimPaint.ColorFilter = paint.ColorFilter;
+                    dimPaint.Color = dimPaint.Color.WithAlpha(128); // 50% alpha for dimming
+                    canvas.DrawImage(layer.Image, 0, 0, dimPaint);
+                }
+                else
+                {
+                    canvas.DrawImage(layer.Image, 0, 0, paint);
+                }
             }
 
             canvas.Restore();
@@ -351,84 +521,70 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         private (SKRect bounds, bool wasZoomApplied) ConstrainBoundsToMap(SKRect bounds, float mapWidth, float mapHeight,
             float viewWidth, float viewHeight, ref Vector2 adjustedPlayerPos)
         {
-            // Calculate the minimum and maximum bounds that can be shown with padding
-            // This allows some extra space around the map edges for better visibility
-            // Use separate padding values for horizontal and vertical directions
-            float minLeft = -HORIZONTAL_PADDING;
-            float minTop = -VERTICAL_PADDING;
-            float maxRight = mapWidth + HORIZONTAL_PADDING;
-            float maxBottom = mapHeight + VERTICAL_PADDING;
+            // Include padding in the effective map size to prevent boundary snapping
+            // The map is treated as being larger by the padding amount on all sides
+            float effectiveMapWidth = mapWidth + (HORIZONTAL_PADDING * 2f);
+            float effectiveMapHeight = mapHeight + (VERTICAL_PADDING * 2f);
+
+            // The origin (-padding, -padding) relative to the original map
+            float originX = -HORIZONTAL_PADDING;
+            float originY = -VERTICAL_PADDING;
 
             bool wasZoomApplied = true;
 
-            if (viewWidth < mapWidth)
+            // X-axis constraint
+            if (bounds.Left < originX)
             {
-                if (bounds.Left < minLeft)
-                {
-                    float shift = minLeft - bounds.Left;
-                    bounds.Left += shift;
-                    bounds.Right += shift;
-                    adjustedPlayerPos.X += shift;
-                }
-                else if (bounds.Right > maxRight)
-                {
-                    float shift = bounds.Right - maxRight;
-                    bounds.Left -= shift;
-                    bounds.Right -= shift;
-                    adjustedPlayerPos.X -= shift;
-                }
+                float shift = originX - bounds.Left;
+                bounds.Left += shift;
+                bounds.Right += shift;
+                adjustedPlayerPos.X += shift;
             }
-            else
+            else if (bounds.Right > originX + effectiveMapWidth)
             {
-                float maxAcceptableWidth = mapWidth + (HORIZONTAL_PADDING * 2f);
-                if (viewWidth > maxAcceptableWidth)
-                {
-                    wasZoomApplied = false;
-                    bounds.Left = minLeft;
-                    bounds.Right = maxRight;
-                    adjustedPlayerPos.X = mapWidth * 0.5f;
-                }
-                else
-                {
-                    bounds.Left = minLeft;
-                    bounds.Right = maxRight;
-                    adjustedPlayerPos.X = mapWidth * 0.5f;
-                }
+                float shift = bounds.Right - (originX + effectiveMapWidth);
+                bounds.Left -= shift;
+                bounds.Right -= shift;
+                adjustedPlayerPos.X -= shift;
             }
 
-            if (viewHeight < mapHeight)
+            // Y-axis constraint
+            if (bounds.Top < originY)
             {
-                if (bounds.Top < minTop)
-                {
-                    float shift = minTop - bounds.Top;
-                    bounds.Top += shift;
-                    bounds.Bottom += shift;
-                    adjustedPlayerPos.Y += shift;
-                }
-                else if (bounds.Bottom > maxBottom)
-                {
-                    float shift = bounds.Bottom - maxBottom;
-                    bounds.Top -= shift;
-                    bounds.Bottom -= shift;
-                    adjustedPlayerPos.Y -= shift;
-                }
+                float shift = originY - bounds.Top;
+                bounds.Top += shift;
+                bounds.Bottom += shift;
+                adjustedPlayerPos.Y += shift;
             }
-            else
+            else if (bounds.Bottom > originY + effectiveMapHeight)
             {
-                float maxAcceptableHeight = mapHeight + (VERTICAL_PADDING * 2f);
-                if (viewHeight > maxAcceptableHeight && wasZoomApplied)
-                {
+                float shift = bounds.Bottom - (originY + effectiveMapHeight);
+                bounds.Top -= shift;
+                bounds.Bottom -= shift;
+                adjustedPlayerPos.Y -= shift;
+            }
+
+            // If view is larger than effective map size, center it
+            // But only set wasZoomApplied=false if view exceeds map size significantly
+            // This allows zooming out while still showing padding area
+            if (viewWidth >= effectiveMapWidth)
+            {
+                bounds.Left = originX;
+                bounds.Right = originX + effectiveMapWidth;
+                adjustedPlayerPos.X = originX + effectiveMapWidth * 0.5f;
+                // Only block zoom if view is significantly larger than the actual map (without padding)
+                if (viewWidth > mapWidth * 1.5f)
                     wasZoomApplied = false;
-                    bounds.Top = minTop;
-                    bounds.Bottom = maxBottom;
-                    adjustedPlayerPos.Y = mapHeight * 0.5f;
-                }
-                else
-                {
-                    bounds.Top = minTop;
-                    bounds.Bottom = maxBottom;
-                    adjustedPlayerPos.Y = mapHeight * 0.5f;
-                }
+            }
+
+            if (viewHeight >= effectiveMapHeight)
+            {
+                bounds.Top = originY;
+                bounds.Bottom = originY + effectiveMapHeight;
+                adjustedPlayerPos.Y = originY + effectiveMapHeight * 0.5f;
+                // Only block zoom if view is significantly larger than the actual map (without padding)
+                if (viewHeight > mapHeight * 1.5f)
+                    wasZoomApplied = false;
             }
 
             return (bounds, wasZoomApplied);
@@ -446,11 +602,11 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
         /// <summary>
         /// Internal wrapper for a single pre-rasterized map layer.
         /// Converts SKPicture to SKImage at construction for fast bitmap drawing.
-        /// Rasterizes at 2x resolution for sharper zoomed-in quality.
+        /// Rasterizes at 4x resolution for sharper zoomed-in quality.
         /// </summary>
         private sealed class RasterLayer : IComparable<RasterLayer>, IDisposable
         {
-            public const float RasterScale = 2f;  // Rasterize at 2x for better quality
+            public const float RasterScale = 4f;  // Rasterize at 4x for best quality
             private readonly SKImage _image;
             public readonly bool IsBaseLayer;
             public readonly bool CannotDimLowerLayers;
@@ -460,13 +616,13 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
             public readonly float RawHeight;
 
             /// <summary>
-            /// The pre-rasterized bitmap image for this layer (at 2x resolution).
+            /// The pre-rasterized bitmap image for this layer (at 4x resolution).
             /// </summary>
             public SKImage Image => _image;
 
             /// <summary>
             /// Create a raster layer by converting the SKPicture to an SKImage bitmap.
-            /// Rasterizes at 2x resolution and scales dimensions for rendering.
+            /// Rasterizes at 4x resolution and scales dimensions for rendering.
             /// </summary>
             public RasterLayer(SKPicture picture, EftMapConfig.Layer cfgLayer)
             {
@@ -479,7 +635,7 @@ namespace LoneEftDmaRadar.UI.Radar.Maps
                 RawWidth = cullRect.Width;
                 RawHeight = cullRect.Height;
 
-                // Rasterize the vector picture to a bitmap image at 2x resolution
+                // Rasterize the vector picture to a bitmap image at 4x resolution
                 int width = (int)Math.Ceiling(RawWidth * RasterScale);
                 int height = (int)Math.Ceiling(RawHeight * RasterScale);
 

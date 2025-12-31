@@ -25,6 +25,7 @@ using DxColor = SharpDX.Mathematics.Interop.RawColorBGRA;
 using LoneEftDmaRadar.Tarkov.GameWorld.Camera;
 using LoneEftDmaRadar.UI.Radar;
 using LoneEftDmaRadar.UI.Radar.Maps;
+using LoneEftDmaRadar.UI.Radar.ViewModels;
 
 namespace LoneEftDmaRadar.UI.ESP
 {
@@ -54,6 +55,10 @@ namespace LoneEftDmaRadar.UI.ESP
             public float LastRenderedX;
             public float LastRenderedY;
             public float LastRenderedZoom;
+            public float LastRenderedHeight; // Player height for SVG layer filtering
+            // Actual center of the rendered texture (may differ from player pos when at map edges)
+            public float TextureCenterX;
+            public float TextureCenterY;
         }
 
         public static bool ShowESP { get; set; } = true;
@@ -391,6 +396,7 @@ namespace LoneEftDmaRadar.UI.ESP
                         }
 
                         DrawDeviceAimbotDebugOverlay(ctx, screenWidth, screenHeight);
+                        DrawMemoryInspectorOverlay(ctx, screenWidth, screenHeight);
 
                         if (App.Config.UI.MiniRadar.Enabled)
                         {
@@ -912,6 +918,13 @@ namespace LoneEftDmaRadar.UI.ESP
                  bool selfLockNeedsUpdate = false;
                  bool selfLockModeChanged = cfg.SelfLock != _lastSelfLock;
                  
+                 // Get player height for SVG layer filtering
+                 float currentPlayerHeight = localPlayer?.Position.Y ?? 0f;
+                 
+                 // Check if player height changed significantly (for floor/level changes)
+                 // Use 2 units threshold to avoid excessive updates from small vertical movements
+                 bool heightChanged = MathF.Abs(_miniRadarParams.LastRenderedHeight - currentPlayerHeight) > 2f;
+                 
                  if (cfg.SelfLock && localPlayer != null)
                  {
                      // Update if player moved more than 5 map units (balance smoothness vs perf)
@@ -925,18 +938,18 @@ namespace LoneEftDmaRadar.UI.ESP
                      selfLockNeedsUpdate = distMoved > 5f || zoomChanged || !_miniRadarParams.IsValid;
                  }
                  
-                 // Force update when self-lock mode changes
-                 if (mapChanged || sizeChanged || selfLockNeedsUpdate || selfLockModeChanged)
+                 // Force update when self-lock mode changes or height changes (for floor/level SVG layers)
+                 if (mapChanged || sizeChanged || selfLockNeedsUpdate || selfLockModeChanged || heightChanged)
                  {
                      _lastSelfLock = cfg.SelfLock;
                      
                      if (cfg.SelfLock && localPlayer != null)
                      {
-                         UpdateMiniRadarTextureCentered(map, cfg.Size, currentPlayerX, currentPlayerY, cfg.ZoomLevel);
+                         UpdateMiniRadarTextureCentered(map, cfg.Size, currentPlayerX, currentPlayerY, cfg.ZoomLevel, currentPlayerHeight);
                      }
                      else
                      {
-                         UpdateMiniRadarTexture(map, cfg.Size);
+                         UpdateMiniRadarTexture(map, cfg.Size, currentPlayerHeight);
                      }
                  }
 
@@ -1120,12 +1133,14 @@ namespace LoneEftDmaRadar.UI.ESP
              
              if (_miniRadarParams.SelfLockEnabled)
              {
-                 // Self-lock mode: player is always at center, positions are relative
+                 // Self-lock mode: positions are relative to the TEXTURE center, not player position
+                 // This is important when player is at map corners - the texture is clamped to map bounds
+                 // so the actual center of what's rendered may differ from the player position
                  float halfSize = _miniRadarParams.DrawSize / 2f;
                  
-                 // Calculate relative position from player
-                 float relX = mapPos.X - _miniRadarParams.PlayerWorldX;
-                 float relY = mapPos.Y - _miniRadarParams.PlayerWorldY;
+                 // Calculate relative position from the actual texture center (not player position)
+                 float relX = mapPos.X - _miniRadarParams.TextureCenterX;
+                 float relY = mapPos.Y - _miniRadarParams.TextureCenterY;
                  
                  // The Scale already includes the zoom factor from UpdateMiniRadarTextureCentered
                  // So we just apply the scale directly
@@ -1174,7 +1189,7 @@ namespace LoneEftDmaRadar.UI.ESP
         private bool _lastSelfLock = false;
         private DateTime _lastMiniRadarErrorTime = DateTime.MinValue;
 
-        private void UpdateMiniRadarTexture(IEftMap map, int size)
+        private void UpdateMiniRadarTexture(IEftMap map, int size, float playerHeight)
         {
              try 
              {
@@ -1218,10 +1233,10 @@ namespace LoneEftDmaRadar.UI.ESP
                  // Use Transparent background so the underlying FilledRect color shows through
                  canvas.Clear(SKColors.Transparent);
 
-                 // Render map into the 512x512 canvas
+                 // Render map into the 512x512 canvas with height-based layer filtering
                  try
                  {
-                     map.RenderThumbnail(canvas, TEXTURE_SIZE, TEXTURE_SIZE);
+                     map.RenderThumbnail(canvas, TEXTURE_SIZE, TEXTURE_SIZE, playerHeight);
                  }
                  catch (Exception ex)
                  {
@@ -1243,7 +1258,8 @@ namespace LoneEftDmaRadar.UI.ESP
                      OffsetX = screenOffsetX,
                      OffsetY = screenOffsetY,
                      DrawSize = size,
-                     IsValid = true
+                     IsValid = true,
+                     LastRenderedHeight = playerHeight
                  };
                  
                  _lastMapId = map.ID;
@@ -1260,7 +1276,7 @@ namespace LoneEftDmaRadar.UI.ESP
              }
         }
 
-        private void UpdateMiniRadarTextureCentered(IEftMap map, int size, float centerX, float centerY, float zoom)
+        private void UpdateMiniRadarTextureCentered(IEftMap map, int size, float centerX, float centerY, float zoom, float playerHeight)
         {
              try 
              {
@@ -1289,10 +1305,10 @@ namespace LoneEftDmaRadar.UI.ESP
                  
                  canvas.Clear(SKColors.Transparent);
 
-                 // Render map centered on player with zoom
+                 // Render map centered on player with zoom and height-based layer filtering
                  try
                  {
-                     map.RenderThumbnailCentered(canvas, TEXTURE_SIZE, TEXTURE_SIZE, centerX, centerY, zoom);
+                     map.RenderThumbnailCentered(canvas, TEXTURE_SIZE, TEXTURE_SIZE, centerX, centerY, zoom, playerHeight);
                  }
                  catch (Exception ex)
                  {
@@ -1304,11 +1320,24 @@ namespace LoneEftDmaRadar.UI.ESP
                  _dxOverlay.RequestMapTextureUpdate(TEXTURE_SIZE, TEXTURE_SIZE, bytes);
                  
                  // For self-lock mode, scale is based on zoom and the dot positions are calculated differently
-                 // The texture shows a zoomed portion, so dots need to be positioned relative to player center
+                 // The texture shows a zoomed portion, so dots need to be positioned relative to texture center
                  float visibleW = mapW / zoom;
                  float visibleH = mapH / zoom;
                  float renderScale = Math.Min((float)TEXTURE_SIZE / visibleW, (float)TEXTURE_SIZE / visibleH);
                  float screenScale = renderScale * ((float)size / TEXTURE_SIZE);
+                 
+                 // Calculate the actual texture center after boundary clamping
+                 // This must match the logic in RenderThumbnailCentered
+                 float srcLeft = centerX - (visibleW / 2f);
+                 float srcTop = centerY - (visibleH / 2f);
+                 
+                 // Clamp to map bounds (same as RenderThumbnailCentered)
+                 srcLeft = Math.Max(0, Math.Min(srcLeft, mapW - visibleW));
+                 srcTop = Math.Max(0, Math.Min(srcTop, mapH - visibleH));
+                 
+                 // The actual center of what's being rendered
+                 float textureCenterX = srcLeft + (visibleW / 2f);
+                 float textureCenterY = srcTop + (visibleH / 2f);
                  
                  _miniRadarParams = new MiniRadarParams
                  {
@@ -1323,7 +1352,10 @@ namespace LoneEftDmaRadar.UI.ESP
                      ZoomLevel = zoom,
                      LastRenderedX = centerX,
                      LastRenderedY = centerY,
-                     LastRenderedZoom = zoom
+                     LastRenderedZoom = zoom,
+                     LastRenderedHeight = playerHeight,
+                     TextureCenterX = textureCenterX,
+                     TextureCenterY = textureCenterY
                  };
                  
                  _lastMapId = map.ID;
@@ -1669,6 +1701,51 @@ namespace LoneEftDmaRadar.UI.ESP
             {
                 ctx.DrawText(line, x, y, color, DxTextSize.Small);
                 y += lineStep;
+            }
+        }
+
+        /// <summary>
+        /// Draw Memory Inspector values on ESP overlay.
+        /// </summary>
+        private void DrawMemoryInspectorOverlay(ImGuiRenderContext ctx, float width, float height)
+        {
+            var data = MemoryInspectorViewModel.EspOverlayData;
+            if (data == null || !data.Enabled || data.Fields.Count == 0)
+                return;
+
+            // Position on right side of screen
+            float x = width - 320f;
+            float y = 40f;
+            float lineStep = 14f;
+            var headerColor = ToColor(new SKColor(0, 255, 200, 255)); // Cyan
+            var fieldColor = ToColor(new SKColor(200, 200, 200, 255)); // Gray
+            var valueColor = ToColor(new SKColor(100, 255, 100, 255)); // Green
+
+            // Draw header
+            ctx.DrawText($"=== {data.StructName} ===", x, y, headerColor, DxTextSize.Small);
+            y += lineStep;
+            ctx.DrawText($"Base: 0x{data.BaseAddress:X}", x, y, fieldColor, DxTextSize.Small);
+            y += lineStep + 4;
+
+            // Draw fields (limited to prevent too many lines)
+            int maxFields = Math.Min(data.Fields.Count, 25);
+            for (int i = 0; i < maxFields; i++)
+            {
+                var field = data.Fields[i];
+                var offsetText = $"0x{field.Offset:X2}";
+                var line = $"{field.Name}: {field.Value}";
+                
+                // Truncate long values
+                if (line.Length > 45)
+                    line = line.Substring(0, 42) + "...";
+
+                ctx.DrawText(line, x, y, valueColor, DxTextSize.Small);
+                y += lineStep;
+            }
+
+            if (data.Fields.Count > maxFields)
+            {
+                ctx.DrawText($"... +{data.Fields.Count - maxFields} more", x, y, fieldColor, DxTextSize.Small);
             }
         }
 
