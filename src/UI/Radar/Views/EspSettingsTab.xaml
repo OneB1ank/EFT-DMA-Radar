@@ -70,7 +70,7 @@
                                 <ComboBox Width="180"
                                           ItemsSource="{Binding AvailableFontWeights}"
                                           SelectedItem="{Binding EspFontWeight, Mode=TwoWay}"
-                                          ToolTip="字体粗细 (Regular, Medium, Semibold, Bold, etc.)"/>
+                                          ToolTip="字体粗细 (Regular, Medium, Semibold, Bold, 等)"/>
                             </WrapPanel>
                             <WrapPanel Margin="0,4,0,0">
                                 <TextBlock Text="大小 (S/M/L):" VerticalAlignment="Center" Width="90"/>
@@ -95,7 +95,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Player ESP" Margin="0,0,0,12">
+            <GroupBox Header="玩家 ESP" Margin="0,0,0,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -104,20 +104,20 @@
                     
                     <StackPanel Grid.Column="0">
                         <WrapPanel>
-                            <CheckBox Content="Box" IsChecked="{Binding EspPlayerBoxes, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Skeleton" IsChecked="{Binding EspPlayerSkeletons, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Names" IsChecked="{Binding EspPlayerNames, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Group IDs" IsChecked="{Binding EspGroupIds, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Group Colors" IsChecked="{Binding EspGroupColors, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Faction Text" IsChecked="{Binding EspPlayerFaction, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Faction Color" IsChecked="{Binding EspFactionColors, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Health Status" IsChecked="{Binding EspPlayerHealth, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Weapon" IsChecked="{Binding EspPlayerWeapon, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Distance" IsChecked="{Binding EspPlayerDistance, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Head Circle" IsChecked="{Binding EspHeadCirclePlayers, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="方框" IsChecked="{Binding EspPlayerBoxes, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="骨骼" IsChecked="{Binding EspPlayerSkeletons, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="名称" IsChecked="{Binding EspPlayerNames, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="队伍 ID" IsChecked="{Binding EspGroupIds, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="队伍颜色" IsChecked="{Binding EspGroupColors, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="派系文字" IsChecked="{Binding EspPlayerFaction, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="派系颜色" IsChecked="{Binding EspFactionColors, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="生命状态" IsChecked="{Binding EspPlayerHealth, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="武器" IsChecked="{Binding EspPlayerWeapon, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="距离" IsChecked="{Binding EspPlayerDistance, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="头部圆" IsChecked="{Binding EspHeadCirclePlayers, Mode=TwoWay}" Margin="0,0,16,8" />
                          </WrapPanel>
                          <WrapPanel Margin="0,4,0,0">
-                            <TextBlock Text="Max Distance (0 = Unlimited):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="最大距离 (0 = 无限)：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="PlayerDistanceSlider"
                                     Width="300"
                                     Margin="0,0,8,0"
@@ -131,25 +131,25 @@
                                        MinWidth="50"/>
                         </WrapPanel>
                         <WrapPanel Margin="0,8,0,0">
-                            <TextBlock Text="Label Position (Players):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="标签位置（玩家）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox Width="140"
                                       ItemsSource="{Binding LabelPositions}"
                                       SelectedItem="{Binding EspLabelPosition, Mode=TwoWay}"
-                                      ToolTip="Choose where the player label is drawn relative to the bounding box."/>
+                                      ToolTip="选择玩家标签相对于包围盒的位置。"/>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorPlayers, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,4,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="BEAR Faction:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="BEAR 派系：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorFactionBear, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
-                                <TextBlock Text="USEC:" VerticalAlignment="Center" Margin="10,0,6,0"/>
+                                <TextBlock Text="USEC：" VerticalAlignment="Center" Margin="10,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorFactionUsec, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
@@ -172,7 +172,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" 
-                                       Text="Preview" 
+                                       Text="预览" 
                                        FontSize="11"
                                        Foreground="{DynamicResource App.TextMutedBrush}"
                                        HorizontalAlignment="Center"
@@ -192,43 +192,43 @@
                     
                     <StackPanel Grid.Column="0">
                         <WrapPanel>
-                            <CheckBox Content="Box" IsChecked="{Binding EspAIBoxes, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Skeleton" IsChecked="{Binding EspAISkeletons, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Names" IsChecked="{Binding EspAINames, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Health Status" IsChecked="{Binding EspAIHealth, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Weapon" IsChecked="{Binding EspAIWeapon, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Distance" IsChecked="{Binding EspAIDistance, Mode=TwoWay}" Margin="0,0,16,8" />
-                            <CheckBox Content="Head Circle" IsChecked="{Binding EspHeadCircleAI, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="方框" IsChecked="{Binding EspAIBoxes, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="骨骼" IsChecked="{Binding EspAISkeletons, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="名称" IsChecked="{Binding EspAINames, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="生命状态" IsChecked="{Binding EspAIHealth, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="武器" IsChecked="{Binding EspAIWeapon, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="距离" IsChecked="{Binding EspAIDistance, Mode=TwoWay}" Margin="0,0,16,8" />
+                            <CheckBox Content="头部圆" IsChecked="{Binding EspHeadCircleAI, Mode=TwoWay}" Margin="0,0,16,8" />
                          </WrapPanel>
                         <WrapPanel Margin="0,8,0,0">
-                            <TextBlock Text="Label Position (AI/Scav):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="标签位置（AI/拾荒者）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox Width="140"
                                       ItemsSource="{Binding LabelPositions}"
                                       SelectedItem="{Binding EspLabelPositionAI, Mode=TwoWay}"
-                                      ToolTip="Choose where the AI/scav label is drawn relative to the bounding box."/>
+                                      ToolTip="选择 AI/拾荒者 标签相对于包围盒的位置。"/>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="AI/Scav Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="AI/拾荒者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorAI, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Player Scav Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="玩家拾荒者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorPlayerScavs, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Raider Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="掠夺者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorRaiders, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Boss Color:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Boss 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorBosses, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
@@ -236,7 +236,7 @@
                             </StackPanel>
                          </WrapPanel>
                          <WrapPanel Margin="0,4,0,0">
-                            <TextBlock Text="Max Distance (0 = Unlimited):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="最大距离 (0 = 无限)：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="AIDistanceSlider"
                                     Width="300"
                                     Margin="0,0,8,0"
@@ -249,7 +249,7 @@
                                        VerticalAlignment="Center"
                                        MinWidth="50"/>
                          </WrapPanel>
-                        <TextBlock Text="Head circles inherit the entity color (players, scavs, raiders, bosses)."
+                        <TextBlock Text="头部圆会继承实体颜色（玩家、拾荒者、掠夺者、Boss）。"
                                    Foreground="Gray"
                                    FontSize="10"
                                    Margin="0,8,0,0"/>
@@ -269,7 +269,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" 
-                                       Text="Preview" 
+                                       Text="预览" 
                                        FontSize="11"
                                        Foreground="{DynamicResource App.TextMutedBrush}"
                                        HorizontalAlignment="Center"
@@ -456,8 +456,8 @@
                     </WrapPanel>
                     
                     <WrapPanel Margin="0,0,0,8" IsEnabled="{Binding MiniRadarEnabled}">
-                        <CheckBox Content="Self Lock (Player Centered)" IsChecked="{Binding MiniRadarSelfLock, Mode=TwoWay}" Margin="0,0,16,0" ToolTip="Keep local player centered on the mini radar"/>
-                        <TextBlock Text="Zoom:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <CheckBox Content="自锁（以玩家为中心）" IsChecked="{Binding MiniRadarSelfLock, Mode=TwoWay}" Margin="0,0,16,0" ToolTip="使本地玩家保持在迷你雷达中心"/>
+                        <TextBlock Text="缩放：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <Slider x:Name="MiniRadarZoomSlider" 
                                 Width="120" 
                                 Minimum="0.5" 
@@ -469,7 +469,7 @@
                         <TextBlock Text="{Binding Value, ElementName=MiniRadarZoomSlider, StringFormat='{}{0:F1}x'}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </WrapPanel>
 
-                    <TextBlock Text="Visibility Layers" FontWeight="SemiBold" Margin="0,4,0,4" IsEnabled="{Binding MiniRadarEnabled}"/>
+                    <TextBlock Text="可见图层" FontWeight="SemiBold" Margin="0,4,0,4" IsEnabled="{Binding MiniRadarEnabled}"/>
                     <WrapPanel IsEnabled="{Binding MiniRadarEnabled}">
                         <CheckBox Content="玩家" IsChecked="{Binding MiniRadarShowPlayers, Mode=TwoWay}" Margin="0,0,12,0"/>
                         <CheckBox Content="掉落" IsChecked="{Binding MiniRadarShowLoot, Mode=TwoWay}" Margin="0,0,12,0"/>
