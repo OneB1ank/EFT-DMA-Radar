@@ -40,6 +40,16 @@ namespace SDK
             public const uint EntryPoints = 0x40; // string
         }
 
+        public readonly partial struct EFTHardSettings
+        {
+			public const uint DecelerationSpeed = 0xc0; // Single
+			public const uint LOOT_RAYCAST_DISTANCE = 0x188; // Single
+			public const uint DOOR_RAYCAST_DISTANCE = 0x18c; // Single
+			public const uint STOP_AIMING_AT = 0x214; // Single
+			public const uint MOUSE_LOOK_HORIZONTAL_LIMIT = 0x340; // UnityEngine.Vector2
+			public const uint MOUSE_LOOK_VERTICAL_LIMIT = 0x348; // UnityEngine.Vector2
+        }
+
         public readonly partial struct SynchronizableObject
         {
             public const uint Type = 0x68; // System.Int32
@@ -47,7 +57,7 @@ namespace SDK
 
         public readonly partial struct SynchronizableObjectLogicProcessor
         {
-            public const uint SynchronizableObjects = 0x18; // System.Collections.Generic.List<SynchronizableObject>
+            public const uint _staticSynchronizableObject = 0x18; // System.Collections.Generic.List<SynchronizableObject>
         }
 
         public readonly partial struct TripwireSynchronizableObject
@@ -69,7 +79,7 @@ namespace SDK
 
         public readonly partial struct BTRTurretView
         {
-            public const uint AttachedBot = 0x60; // System.ValueTuple<ObservedPlayerView, Boolean>
+            public const uint _bot = 0x60; // System.ValueTuple<ObservedPlayerView, Boolean>
         }
 
         public readonly partial struct Throwable
@@ -90,7 +100,7 @@ namespace SDK
             public const uint ProceduralWeaponAnimation = 0x338; // EFT.Animations.ProceduralWeaponAnimation
             public const uint _inventoryController = 0x978; // EFT.PlayerInventoryController update
             public const uint _handsController = 0x980; // EFT.PlayerHands update
-            public const uint _playerLookRaycastTransform = 0xA08; // UnityEngine.Transform
+            public const uint _playerLookRaycastTransform = 0xA10; // UnityEngine.Transform
         }
 
         public readonly partial struct ObservedPlayerView
@@ -158,7 +168,7 @@ namespace SDK
 
         public readonly partial struct MovementContext // EFT, class: MovementContext
         {
-            public const uint Player = 0x48; // EFT.Player
+            public const uint _player = 0x48; // EFT.Player
             public const uint _rotation = 0xC8; // UnityEngine.Vector2
             public const uint PlantState = 0x78; // EFT.BaseMovementState <PlantState> PlantState
             public const uint CurrentState = 0x1F0; // EFT.BaseMovementState <CurrentState>k__BackingField
@@ -363,16 +373,30 @@ namespace SDK
             public const uint _magSlotCache = 0xc8; // EFT.InventoryLogic.Slot <_magSlotCache> _magSlotCache
         }
 
+        public readonly partial struct FireModeComponent //Class: EFT.InventoryLogic.FireModeComponent
+        {
+            public const uint Item = 0x10; 
+            public const uint _template = 0x18;
+            public const uint OnChanged = 0x20;
+            public const uint FireMode = 0x28;
+        }
+
         public readonly partial struct LootItemMagazine //Class: EFT.InventoryLogic.MagazineTemplate
         {
-            public const uint Cartridges = 0x1a8; // EFT.InventoryLogic.StackSlot <Cartridges> Cartridges
+            public const uint Cartridges = 0x1a8; // EFT.InventoryLogic.StackSlot <Cartridges> Cartridges (on Template)
             public const uint LoadUnloadModifier = 0x1b0; // Single <LoadUnloadModifier> LoadUnloadModifier
+        }
+
+        // Magazine Item (not template) offsets - used when reading from magSlot.ContainedItem
+        public readonly partial struct MagazineItem //Class: EFT.InventoryLogic.MagazineClass (Item instance)
+        {
+            public const uint Cartridges = 0xA8; // EFT.InventoryLogic.StackSlot - Cartridges on the Magazine Item itself
         }
 
         public readonly partial struct StackSlot //Class: EFT.InventoryLogic.StackSlot
         {
-            public const uint _items = 0x10; // System.Collections.Generic.List<Item>
-            public const uint MaxCount = 0x38; // Int32
+            public const uint MaxCount = 0x10; // Int32 - Max cartridge count
+            public const uint _items = 0x18; // System.Collections.Generic.List<Item> - List of ammo stacks
         }
 
         public readonly partial struct Slot //Class: EFT.InventoryLogic.Slot
@@ -426,6 +450,26 @@ namespace SDK
         public readonly partial struct InventoryEquipment
         {
             public const uint _cachedSlots = 0x90; // EFT.InventoryLogic.Slot[]
+        }
+
+        public readonly partial struct MagazineClass //Class: EFT.InventoryLogic.Item
+        {
+            public const uint StackObjectsCount = 0x24; // int32_t
+        }
+
+        public readonly partial struct TarkovApplication // EFT.TarkovApplication
+        {
+            public const uint MenuOperation = 0x128; // System.Object
+        }
+
+        public readonly partial struct MenuOperation // EFT.MainMenuShowOperation
+        {
+            public const uint AfkMonitor = 0x38; // System.Object
+        }
+
+        public readonly partial struct AfkMonitor
+        {
+            public const uint Delay = 0x10; // _afkTimeout
         }
     }
 

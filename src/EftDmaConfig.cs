@@ -601,6 +601,18 @@ namespace LoneEftDmaRadar
         public float EspCrosshairLength { get; set; } = 25f;
 
         /// <summary>
+        /// Show the local player's firearm aimline on ESP.
+        /// </summary>
+        [JsonPropertyName("espLocalAimline")]
+        public bool EspLocalAimline { get; set; } = false;
+
+        /// <summary>
+        /// Show the local player's ammo count on ESP.
+        /// </summary>
+        [JsonPropertyName("espLocalAmmo")]
+        public bool EspLocalAmmo { get; set; } = false;
+
+        /// <summary>
         /// Font family used for ESP text (DX overlay).
         /// </summary>
         [JsonPropertyName("espFontFamily")]
@@ -927,7 +939,27 @@ namespace LoneEftDmaRadar
         public bool InfiniteStaminaEnabled { get; set; }
         public bool MemoryAimEnabled { get; set; }
         public Bones MemoryAimTargetBone { get; set; } = Bones.HumanHead;
+
+        [JsonPropertyName("extendedReach")]
+        [JsonInclude]
+        public ExtendedReachConfig ExtendedReach { get; private set; } = new();
+
+        public bool MuleModeEnabled { get; set; }
+        public bool AntiAfkEnabled { get; set; }
     }
+
+    /// <summary>
+    /// Extended Reach (Loot/Door Raycast) Config.
+    /// </summary>
+    public sealed class ExtendedReachConfig
+    {
+        [JsonPropertyName("enabled")]
+        public bool Enabled { get; set; }
+
+        [JsonPropertyName("distance")]
+        public float Distance { get; set; } = 2.0f; // Default conservative increase
+    }
+
 
     /// <summary>
     /// FilteredLoot Filter Config.
