@@ -37,7 +37,7 @@
                         <CheckBox Content="自动启动"
                                   IsChecked="{Binding EspAutoStartup, Mode=TwoWay}"
                                   VerticalAlignment="Center"
-                                  ToolTip="当应用程序启动时自动启动 ESP Fuser"/>
+                                  ToolTip="当应用程序启动时自动启动 ESP 融合器"/>
                     </WrapPanel>
 
                     <WrapPanel Margin="0,4,0,0">
@@ -73,7 +73,7 @@
                                           ToolTip="字体粗细 (Regular, Medium, Semibold, Bold, 等)"/>
                             </WrapPanel>
                             <WrapPanel Margin="0,4,0,0">
-                                <TextBlock Text="大小 (S/M/L):" VerticalAlignment="Center" Width="90"/>
+                                <TextBlock Text="大小（S/M/L）：" VerticalAlignment="Center" Width="90"/>
                                 <TextBox Width="50"
                                          Text="{Binding EspFontSizeSmall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="小字号（掉落标签）"/>
@@ -126,7 +126,7 @@
                                     SmallChange="10"
                                     LargeChange="100"
                                     Value="{Binding EspPlayerMaxDistance, Mode=TwoWay}"/>
-                            <TextBlock Text="{Binding Value, ElementName=PlayerDistanceSlider, StringFormat='{}{0:F0}m'}"
+                            <TextBlock Text="{Binding Value, ElementName=PlayerDistanceSlider, StringFormat='{}{0:F0} m'}"
                                        VerticalAlignment="Center"
                                        MinWidth="50"/>
                         </WrapPanel>
@@ -228,7 +228,7 @@
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Boss 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="首领颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorBosses, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
@@ -245,11 +245,11 @@
                                     SmallChange="10"
                                     LargeChange="100"
                                     Value="{Binding EspAIMaxDistance, Mode=TwoWay}"/>
-                            <TextBlock Text="{Binding Value, ElementName=AIDistanceSlider, StringFormat='{}{0:F0}m'}"
+                            <TextBlock Text="{Binding Value, ElementName=AIDistanceSlider, StringFormat='{}{0:F0} m'}"
                                        VerticalAlignment="Center"
                                        MinWidth="50"/>
                          </WrapPanel>
-                        <TextBlock Text="头部圆会继承实体颜色（玩家、拾荒者、掠夺者、Boss）。"
+                        <TextBlock Text="头部圆会继承实体颜色（玩家、拾荒者、掠夺者、首领）。"
                                    Foreground="Gray"
                                    FontSize="10"
                                    Margin="0,8,0,0"/>
@@ -301,7 +301,7 @@
                         <CheckBox Content="显示容器" IsChecked="{Binding EspContainers, Mode=TwoWay}" Margin="0,0,16,8" />
                     </WrapPanel>
                     <WrapPanel Margin="0,4,0,0" IsEnabled="{Binding EspContainers}">
-                        <TextBlock Text="容器距离 (ESP)"
+                        <TextBlock Text="容器距离（ESP）"
                                    VerticalAlignment="Center" />
                         <Slider x:Name="EspContainerDistanceSlider"
                                 Width="150"
@@ -326,7 +326,7 @@
                                 SmallChange="10"
                                 LargeChange="50"
                                 Value="{Binding EspTripwireDistance, Mode=TwoWay}" />
-                        <TextBlock Text="{Binding Value, ElementName=EspTripwireDistanceSlider, StringFormat='{}{0:F0}m'}"
+                        <TextBlock Text="{Binding Value, ElementName=EspTripwireDistanceSlider, StringFormat='{}{0:F0} m'}"
                                    VerticalAlignment="Center"
                                    Margin="8,0,0,0" />
                      </WrapPanel>
@@ -341,7 +341,7 @@
                                 SmallChange="10"
                                 LargeChange="50"
                                 Value="{Binding EspGrenadeDistance, Mode=TwoWay}" />
-                        <TextBlock Text="{Binding Value, ElementName=EspGrenadeDistanceSlider, StringFormat='{}{0:F0}m'}"
+                        <TextBlock Text="{Binding Value, ElementName=EspGrenadeDistanceSlider, StringFormat='{}{0:F0} m'}"
                                    VerticalAlignment="Center"
                                    Margin="8,0,0,0" />
                      </WrapPanel>
@@ -393,7 +393,7 @@
                                 SmallChange="10"
                                 LargeChange="50"
                                 Value="{Binding EspLootMaxDistance, Mode=TwoWay}"/>
-                        <TextBlock Text="{Binding Value, ElementName=LootDistanceSlider, StringFormat='{}{0:F0}m'}"
+                        <TextBlock Text="{Binding Value, ElementName=LootDistanceSlider, StringFormat='{}{0:F0} m'}"
                                    VerticalAlignment="Center"
                                    MinWidth="50"/>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
@@ -486,7 +486,7 @@
                       Margin="0,0,0,12">
                 <StackPanel>
                     <StackPanel Margin="0,0,0,8">
-                        <TextBlock Text="ESP 最大 FPS (0 = 无限 / 默认 144)："
+                        <TextBlock Text="ESP 最大 FPS（0 = 无限 / 默认 144）："
                                    VerticalAlignment="Center" />
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <Slider x:Name="EspFpsSlider"
@@ -538,12 +538,12 @@
                     </StackPanel>
                     
                     <WrapPanel Margin="0,8,0,0">
-                        <CheckBox Content="Local Player Aimline"
-                                  ToolTip="Show a red line from your weapon's fireport in the direction you're aiming."
+                        <CheckBox Content="本地玩家瞄准线"
+                                  ToolTip="在本地玩家武器开火点朝向处显示一条红色瞄准线。"
                                   IsChecked="{Binding EspLocalAimline, Mode=TwoWay}"
                                   Margin="0,0,16,0" />
-                        <CheckBox Content="Local Player Ammo"
-                                  ToolTip="Show your current ammo count and weapon info on the ESP."
+                        <CheckBox Content="本地玩家弹药"
+                                  ToolTip="在 ESP 上显示本地玩家当前弹药数量和武器信息。"
                                   IsChecked="{Binding EspLocalAmmo, Mode=TwoWay}"
                                   Margin="0,0,16,0" />
                     </WrapPanel>

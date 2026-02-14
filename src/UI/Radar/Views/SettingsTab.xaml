@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="LoneEftDmaRadar.UI.Radar.Views.SettingsTab"
+<UserControl x:Class="LoneEftDmaRadar.UI.Radar.Views.SettingsTab"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:LoneEftDmaRadar.UI.Radar.Views"
@@ -39,7 +39,7 @@
                                 Height="35"
                                 Margin="0,0,8,8" />
                         <Button Content="颜色选择器"
-                                ToolTip="允许自定义雷达 UI 上实体的颜色。"
+                                ToolTip="允许自定义雷达界面上实体的颜色。"
                                 IsEnabled="{Binding ColorPickerIsEnabled}"
                                 Command="{Binding OpenColorPickerCommand}"
                                 MinWidth="100"
@@ -83,7 +83,7 @@
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center"
                                     Margin="0,0,16,8">
-                            <TextBlock Text="雷达最大FPS (0 = 无限)"
+                            <TextBlock Text="雷达最大 FPS（0 = 无限）"
                                        VerticalAlignment="Center" />
                             <Slider x:Name="RadarFpsSlider"
                                     Width="180"
@@ -108,11 +108,11 @@
                                   IsChecked="{Binding ShowMapSetupHelper, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                         <CheckBox Content="瞄准视图小部件"
-                                  ToolTip="切换瞄准视图小部件，为您提供雷达窗口的伪ESP。可以移动。"
+                                  ToolTip="切换瞄准视图小部件，为您提供雷达窗口的伪 ESP。可以移动。"
                                   IsChecked="{Binding AimviewWidget, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                         <CheckBox Content="玩家信息小部件"
-                                  ToolTip="切换玩家信息小部件，提供关于突袭中玩家/Boss的信息。可以移动。"
+                                  ToolTip="切换玩家信息小部件，提供关于突袭中玩家/首领的信息。可以移动。"
                                   IsChecked="{Binding PlayerInfoWidget, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                         <CheckBox Content="战利品信息小部件"
@@ -130,8 +130,8 @@
                                   ToolTip="启用时使队友的瞄准线与主玩家相同长度。"
                                   IsChecked="{Binding TeammateAimlines, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
-                        <CheckBox Content="AI瞄准线"
-                                  ToolTip="为AI玩家启用动态瞄准线。当有人瞄准您时瞄准线会延长。"
+                        <CheckBox Content="AI 瞄准线"
+                                  ToolTip="为 AI 玩家启用动态瞄准线。当有人瞄准您时瞄准线会延长。"
                                   IsChecked="{Binding AIAimlines, Mode=TwoWay}"
                                   Margin="0,0,0,8" />
                     </WrapPanel>
@@ -166,12 +166,12 @@
                       Margin="0,0,0,12">
                 <StackPanel>
                     <WrapPanel Margin="0,0,0,8">
-                        <CheckBox Content="显示掉落 (F3)"
-                                  ToolTip="切换在雷达/ESP上显示掉落。"
+                        <CheckBox Content="显示掉落（F3）"
+                                  ToolTip="切换在雷达/ESP 上显示掉落。"
                                   IsChecked="{Binding ShowLoot, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                         <CheckBox Content="显示静态容器"
-                                  ToolTip="在地图/ESP上显示静态容器。"
+                                  ToolTip="在地图/ESP 上显示静态容器。"
                                   IsChecked="{Binding ShowStaticContainers, Mode=TwoWay}"
                                   Margin="0,0,16,8" />
                     </WrapPanel>

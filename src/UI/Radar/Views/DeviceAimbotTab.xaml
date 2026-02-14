@@ -135,7 +135,7 @@
                         <ComboBoxItem Content="最近距离" />
                     </ComboBox>
 
-                    <TextBlock Text="{Binding Smoothing, StringFormat='平滑: {0:F1}x'}" 
+                    <TextBlock Text="{Binding Smoothing, StringFormat='平滑：{0:F1}x'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding Smoothing, Mode=TwoWay}"
@@ -145,7 +145,7 @@
                             IsSnapToTickEnabled="True"
                             Margin="8,4,8,8" />
                     
-                    <TextBlock Text="{Binding FOV, StringFormat='视野 (FOV): {0:F0}'}" 
+                    <TextBlock Text="{Binding FOV, StringFormat='视野（FOV）：{0:F0}'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding FOV, Mode=TwoWay}"
@@ -155,7 +155,7 @@
                             IsSnapToTickEnabled="True"
                             Margin="8,4,8,8" />
                     
-                    <TextBlock Text="{Binding MaxDistance, StringFormat='最大距离: {0:F0}m'}" 
+                    <TextBlock Text="{Binding MaxDistance, StringFormat='最大距离：{0:F0} m'}" 
                                FontWeight="Bold"
                                Margin="8,8,8,4" />
                     <Slider Value="{Binding MaxDistance, Mode=TwoWay}"
@@ -177,7 +177,7 @@
                               Margin="8,4,8,8" />
 
                     <WrapPanel Margin="8,4,8,4">
-                        <TextBlock Text="FOV 圆颜色（激活）:"
+                        <TextBlock Text="FOV 圆颜色（激活）："
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"
                                    Width="180" />
@@ -189,7 +189,7 @@
                     </WrapPanel>
 
                     <WrapPanel Margin="8,4,8,8">
-                        <TextBlock Text="FOV 圆颜色（空闲）:"
+                        <TextBlock Text="FOV 圆颜色（空闲）："
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"
                                    Width="180" />
@@ -214,19 +214,19 @@
                               IsChecked="{Binding TargetPMC, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="锁定 玩家 Scav"
+                    <CheckBox Content="锁定玩家拾荒者"
                               IsChecked="{Binding TargetPlayerScav, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="锁定 AI Scav"
+                    <CheckBox Content="锁定 AI 拾荒者"
                               IsChecked="{Binding TargetAIScav, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     
-                    <CheckBox Content="锁定 Boss"
+                    <CheckBox Content="锁定首领"
                               IsChecked="{Binding TargetBoss, Mode=TwoWay}"
                               Margin="8,4,8,4" />
 
-                    <CheckBox Content="锁定 突袭者"
+                    <CheckBox Content="锁定掠夺者"
                               IsChecked="{Binding TargetRaider, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                 </StackPanel>
@@ -238,12 +238,12 @@
                            Margin="8,8,8,8">
                     1. 使用上方下拉菜单连接设备<LineBreak />
                     2. 通过复选框启用自瞄<LineBreak />
-                    3. 按住已配置的鼠标按键以激活（在 设置 → 热键 中设置）<LineBreak />
+                    3. 按住已配置的鼠标按键以激活（在设置 → 热键中设置）<LineBreak />
                     4. 自瞄会自动锁定在 FOV 范围内的敌人<LineBreak />
                     <LineBreak />
-                    注意：您可以在 MemWrites 选项卡中启用 Silentaimbot（使用内存写入），它会使用相同的热键并应用此处的所有设置。Silent Aim 不会替您移动准星，它只是让子弹飞向目标骨骼。<LineBreak />
+                    注意：您可以在内存写入选项卡中启用静默自瞄（使用内存写入），它会使用相同的热键并应用此处的所有设置。静默自瞄不会替您移动准星，它只是让子弹飞向目标骨骼。<LineBreak />
                     <LineBreak />
-                    请确保您的 DeviceAimbot 固件为最新。
+                    请确保您的设备自瞄固件为最新。
                 </TextBlock>
             </GroupBox>
         </UniformGrid>

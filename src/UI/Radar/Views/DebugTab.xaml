@@ -21,21 +21,21 @@
         <!-- Left Column: Existing Debug Utilities (Scrollable independently) -->
         <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,10,0">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="Debug Utilities" FontSize="16" Margin="0,0,0,8" />
+                <TextBlock Text="调试工具" FontSize="16" Margin="0,0,0,8" />
 
-                <Button Content="Toggle Debug Console"
+                <Button Content="切换调试控制台"
                         Width="200"
                         Height="36"
                         HorizontalAlignment="Left"
                         Command="{Binding ToggleDebugConsoleCommand}"
-                        ToolTip="Shows or hides the console-based DebugLogger output." />
+                        ToolTip="显示或隐藏基于控制台的 DebugLogger 输出。" />
 
-                <GroupBox Header="DeviceAimbot Aimbot Debug" Margin="0,12,0,0">
+                <GroupBox Header="设备自瞄调试" Margin="0,12,0,0">
                     <StackPanel>
-                        <CheckBox Content="Show Debug Overlay (ESP)"
+                        <CheckBox Content="显示调试叠加层（ESP）"
                                   IsChecked="{Binding ShowDeviceAimbotDebug, Mode=TwoWay}"
                                   Margin="6,6,6,2"
-                                  ToolTip="Shows detailed debug information on the ESP overlay"/>
+                                  ToolTip="在 ESP 叠加层上显示详细调试信息"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Height="140" Margin="0,4,0,0">
                             <TextBlock Text="{Binding DeviceAimbotDebugText}"
                                        FontFamily="Consolas"
@@ -46,14 +46,14 @@
                     </StackPanel>
                 </GroupBox>
         
-                <GroupBox Header="InputManager Debug" Margin="0,12,0,0">
+                <GroupBox Header="输入管理器调试" Margin="0,12,0,0">
                     <StackPanel Margin="6">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                            <TextBlock Text="Status: " FontWeight="Bold" />
+                            <TextBlock Text="状态：" FontWeight="Bold" />
                             <TextBlock Text="{Binding InputManagerStatus}" />
                         </StackPanel>
                 
-                        <TextBlock Text="Detected Keys (Live):" FontWeight="Bold" Margin="0,4,0,2"/>
+                        <TextBlock Text="检测到的按键（实时）：" FontWeight="Bold" Margin="0,4,0,2"/>
                         <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="4" MinHeight="24" Background="#252525">
                             <TextBlock Text="{Binding InputManagerKeys}" 
                                        FontFamily="Consolas" 
@@ -61,27 +61,27 @@
                                        TextWrapping="Wrap"/>
                         </Border>
                 
-                        <TextBlock Text="Values are Virtual Key Names." 
+                        <TextBlock Text="显示值为虚拟键名称。" 
                                    Foreground="Gray" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap"/>
                            
-                        <Button Content="Re-Initialize InputManager"
+                        <Button Content="重新初始化输入管理器"
                                 Margin="0,12,0,0"
                                 Height="28"
                                 Command="{Binding ReinitializeInputManagerCommand}"
-                                ToolTip="Attempts to re-scan and initialize the InputManager. Check Console for logs."/>
+                                ToolTip="尝试重新扫描并初始化输入管理器。日志请查看控制台。"/>
 
-                        <Button Content="Copy Debug Report to Clipboard"
+                        <Button Content="复制调试报告到剪贴板"
                                 Margin="0,8,0,0"
                                 Height="28"
                                 Command="{Binding CopyInputReportCommand}"
-                                ToolTip="Copies a detailed technical report to clipboard for support."/>
+                                ToolTip="复制详细技术报告到剪贴板，便于问题排查。"/>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
         </ScrollViewer>
 
         <!-- Right Column: Memory Inspector (Fills remaining space) -->
-        <GroupBox Grid.Column="1" Header="Memory Inspector" Margin="0">
+        <GroupBox Grid.Column="1" Header="内存查看器" Margin="0">
             <Grid Margin="6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/> <!-- Wider struct list -->
@@ -96,41 +96,41 @@
                 <!-- Search Box -->
                 <TextBox Grid.Column="0" Grid.Row="0"
                          Text="{Binding MemoryInspector.SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         ToolTip="Search structs or fields..."
+                         ToolTip="搜索结构体或字段..."
                          Margin="0,0,8,4" Height="36" FontSize="14" VerticalContentAlignment="Center"/>
                 
                 <!-- Controls Row -->
                 <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
-                    <TextBlock Text="Base:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="14"/>
+                    <TextBlock Text="基址：" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="14"/>
                     <TextBox Text="{Binding MemoryInspector.BaseAddressHex, UpdateSourceTrigger=PropertyChanged}"
                              Width="160" FontFamily="Consolas" FontSize="14" VerticalAlignment="Center" Height="36" VerticalContentAlignment="Center"/>
-                    <Button Content="Read" Command="{Binding MemoryInspector.RefreshCommand}"
+                    <Button Content="读取" Command="{Binding MemoryInspector.RefreshCommand}"
                             Width="50" Margin="4,0,0,0"/>
-                    <CheckBox Content="Auto" IsChecked="{Binding MemoryInspector.AutoRefresh}"
+                    <CheckBox Content="自动" IsChecked="{Binding MemoryInspector.AutoRefresh}"
                               VerticalAlignment="Center" Margin="8,0,0,0"
-                              ToolTip="Auto-refresh values every 100ms"/>
+                              ToolTip="每 100ms 自动刷新数值"/>
                     <CheckBox Content="ESP" IsChecked="{Binding MemoryInspector.ShowOnEsp}"
                               VerticalAlignment="Center" Margin="8,0,0,0"
                               Foreground="LightGreen"
-                              ToolTip="Display selected struct values on ESP overlay"/>
+                              ToolTip="在 ESP 叠加层显示所选结构体数值"/>
                     <TextBlock Text="{Binding MemoryInspector.AutoDetectHint}" 
                                VerticalAlignment="Center" Margin="10,0,0,0" 
                                Foreground="#00C8FF" FontSize="10" FontStyle="Italic"
-                               ToolTip="Auto-detected base address source"/>
+                               ToolTip="自动检测到的基址来源"/>
                 </StackPanel>
 
                 <!-- Struct Selection Labels with Back Button -->
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="0,0,8,4">
-                    <Button Content="Back" Command="{Binding MemoryInspector.NavigateBackCommand}" 
+                    <Button Content="返回" Command="{Binding MemoryInspector.NavigateBackCommand}" 
                             IsEnabled="{Binding MemoryInspector.CanNavigateBack}"
                             Width="40" Height="20" FontSize="10" Margin="0,0,6,0"
-                            ToolTip="Go back to previous struct"/>
-                    <TextBlock Text="Select struct:" 
+                            ToolTip="返回上一个结构体"/>
+                    <TextBlock Text="选择结构体：" 
                                FontSize="10" Foreground="Gray" VerticalAlignment="Center"/>
                 </StackPanel>
                 
                 <TextBlock Grid.Column="1" Grid.Row="1" 
-                           Text="{Binding MemoryInspector.SelectedStruct.Name, FallbackValue='(none selected)'}" 
+                           Text="{Binding MemoryInspector.SelectedStruct.Name, FallbackValue='（未选择）'}" 
                            FontWeight="Bold" FontSize="10" Foreground="LightGreen" Margin="0,0,0,4"/>
 
                 <!-- Struct List (Independent Scroll) -->
@@ -164,9 +164,9 @@
                                       CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}"/>
                     </DataGrid.InputBindings>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Field" Binding="{Binding Name}" Width="200"/>
-                        <DataGridTextColumn Header="Offset" Binding="{Binding OffsetHex}" Width="60"/>
-                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*">
+                        <DataGridTextColumn Header="字段" Binding="{Binding Name}" Width="200"/>
+                        <DataGridTextColumn Header="偏移" Binding="{Binding OffsetHex}" Width="60"/>
+                        <DataGridTextColumn Header="数值" Binding="{Binding Value}" Width="*">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="LightGreen"/>

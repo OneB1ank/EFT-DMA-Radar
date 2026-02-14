@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Hotkey Manager"
+        Title="按键管理器"
         WindowStartupLocation="CenterOwner"
         Width="520" Height="520"
         MinWidth="480" MinHeight="400"
@@ -30,7 +30,7 @@
                    TextWrapping="Wrap"
                    Foreground="#999"
                    Margin="0,0,0,12"
-                   Text="Click an action/key to rebind (supports mouse/controller buttons). Press Escape while listening to cancel. Use Clear to unbind." />
+                   Text="点击动作或按键可重新绑定（支持鼠标/手柄按键）。监听时按 Esc 取消。使用“清除”可取消绑定。" />
 
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding Bindings}"
@@ -85,8 +85,8 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Action" Binding="{Binding ActionName}" Width="2*"/>
-                <DataGridTemplateColumn Header="Key" Width="*">
+                <DataGridTextColumn Header="动作" Binding="{Binding ActionName}" Width="2*"/>
+                <DataGridTemplateColumn Header="按键" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Border Padding="6,3" Background="{Binding IsListening, Converter={StaticResource BooleanToBrushConverter}}">
@@ -95,10 +95,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Reset" Width="90">
+                <DataGridTemplateColumn Header="重置" Width="90">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="Clear"
+                            <Button Content="清除"
                                     Padding="6,2"
                                     HorizontalAlignment="Center"
                                     Click="OnClearBindingClick" />
@@ -112,7 +112,7 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="0,8,0,0">
-            <Button Content="Close"
+            <Button Content="关闭"
                     Width="90"
                     Height="28"
                     Click="Close_Click" />

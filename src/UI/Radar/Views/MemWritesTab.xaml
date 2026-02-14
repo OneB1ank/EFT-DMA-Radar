@@ -50,12 +50,12 @@
         <Border Grid.Row="0" Margin="0,0,0,15" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
             <DockPanel>
                 <CheckBox DockPanel.Dock="Left" 
-                          Content="Enable Memory Writes (Master Switch)" 
+                          Content="启用内存写入（总开关）" 
                           IsChecked="{Binding Enabled, Mode=TwoWay}"
                           FontSize="14" Foreground="{StaticResource ForegroundBrush}"/>
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="WARNING: High Detection Risk" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" Margin="0,0,5,0"/>
+                    <TextBlock Text="警告：检测风险高" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" Margin="0,0,5,0"/>
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -72,10 +72,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         
-                        <CheckBox Grid.Column="0" Content="Silent Aim" IsChecked="{Binding MemoryAimEnabled, Mode=TwoWay}" />
+                        <CheckBox Grid.Column="0" Content="静默自瞄" IsChecked="{Binding MemoryAimEnabled, Mode=TwoWay}" />
                         
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Bone:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="骨骼：" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <ComboBox ItemsSource="{Binding AvailableBones}" 
                                       SelectedItem="{Binding MemoryAimTargetBone, Mode=TwoWay}"
                                       Width="120" />
@@ -92,7 +92,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox Grid.Column="0" Content="No Recoil &amp; Sway" IsChecked="{Binding NoRecoilEnabled, Mode=TwoWay}" VerticalAlignment="Top" Margin="0,5,0,0"/>
+                        <CheckBox Grid.Column="0" Content="无后坐力与无晃动" IsChecked="{Binding NoRecoilEnabled, Mode=TwoWay}" VerticalAlignment="Top" Margin="0,5,0,0"/>
 
                         <StackPanel Grid.Column="2" Orientation="Vertical">
                             <Grid Margin="0,0,0,5">
@@ -100,7 +100,7 @@
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="120"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding NoRecoilAmount, StringFormat='Recoil: {0:F0}%'}" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding NoRecoilAmount, StringFormat='后坐力：{0:F0}%'}" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
                                 <Slider Grid.Column="1" Value="{Binding NoRecoilAmount, Mode=TwoWay}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"/>
                             </Grid>
                             
@@ -109,7 +109,7 @@
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="120"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding NoSwayAmount, StringFormat='Sway: {0:F0}%'}" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding NoSwayAmount, StringFormat='晃动：{0:F0}%'}" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
                                 <Slider Grid.Column="1" Value="{Binding NoSwayAmount, Mode=TwoWay}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"/>
                             </Grid>
                         </StackPanel>
@@ -125,10 +125,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox Grid.Column="0" Content="Infinite Stamina" IsChecked="{Binding InfiniteStaminaEnabled, Mode=TwoWay}" />
+                        <CheckBox Grid.Column="0" Content="无限体力" IsChecked="{Binding InfiniteStaminaEnabled, Mode=TwoWay}" />
                         
                         <!-- Placeholder for visual balance or future settings -->
-                        <TextBlock Grid.Column="2" Text="Refills stamina &amp; bypasses fatigue" FontSize="11" FontStyle="Italic" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="补满体力并绕过疲劳" FontSize="11" FontStyle="Italic" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 
@@ -141,10 +141,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox Grid.Column="0" Content="Anti-AFK" IsChecked="{Binding AntiAfkEnabled, Mode=TwoWay}" />
+                        <CheckBox Grid.Column="0" Content="防挂机" IsChecked="{Binding AntiAfkEnabled, Mode=TwoWay}" />
 
                         <!-- Description -->
-                        <TextBlock Grid.Column="2" Text="Disable AFK Timer" FontSize="11" FontStyle="Italic" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="禁用挂机计时器" FontSize="11" FontStyle="Italic" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 
