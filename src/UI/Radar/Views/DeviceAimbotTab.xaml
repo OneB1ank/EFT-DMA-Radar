@@ -210,7 +210,7 @@
                                Margin="8,8,8,8"
                                Foreground="Gray" />
                     
-                    <CheckBox Content="锁定 PMC 玩家"
+                    <CheckBox Content="锁定 PMC"
                               IsChecked="{Binding TargetPMC, Mode=TwoWay}"
                               Margin="8,4,8,4" />
                     

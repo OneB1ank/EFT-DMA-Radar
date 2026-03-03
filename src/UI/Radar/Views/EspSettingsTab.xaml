@@ -24,7 +24,7 @@
                     Margin="0,0,0,10">
 
             <!-- General Settings -->
-            <GroupBox Header="ESP 融合 - 通用设置"
+            <GroupBox Header="ESP 融合（通用设置）"
                       Margin="0,0,0,12">
                 <StackPanel>
                     <WrapPanel>
@@ -51,7 +51,7 @@
                     </WrapPanel>
 
                     <WrapPanel Margin="0,4,0,0">
-                        <TextBlock Text="分辨率覆盖 (0 = 自动)： " VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="分辨率覆盖（0 = 自动）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Width="65" Text="{Binding EspScreenWidth, Mode=TwoWay}" Margin="0,0,8,0" ToolTip="宽度（例如 1920、2560）。设置为 0 以自动检测所选显示器分辨率。"/>
                         <TextBlock Text="x" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Width="65" Text="{Binding EspScreenHeight, Mode=TwoWay}" Margin="0,0,16,0" ToolTip="高度（例如 1080、1440）。设置为 0 以自动检测所选显示器分辨率。"/>
@@ -70,10 +70,10 @@
                                 <ComboBox Width="180"
                                           ItemsSource="{Binding AvailableFontWeights}"
                                           SelectedItem="{Binding EspFontWeight, Mode=TwoWay}"
-                                          ToolTip="字体粗细 (Regular, Medium, Semibold, Bold, 等)"/>
+                                          ToolTip="字体粗细（常规、中等、半粗、粗体等）"/>
                             </WrapPanel>
                             <WrapPanel Margin="0,4,0,0">
-                                <TextBlock Text="大小（S/M/L）：" VerticalAlignment="Center" Width="90"/>
+                                <TextBlock Text="大小（小/中/大）：" VerticalAlignment="Center" Width="90"/>
                                 <TextBox Width="50"
                                          Text="{Binding EspFontSizeSmall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="小字号（掉落标签）"/>
@@ -117,7 +117,7 @@
                             <CheckBox Content="头部圆" IsChecked="{Binding EspHeadCirclePlayers, Mode=TwoWay}" Margin="0,0,16,8" />
                          </WrapPanel>
                          <WrapPanel Margin="0,4,0,0">
-                            <TextBlock Text="最大距离 (0 = 无限)：" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="最大距离（0 = 无限）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="PlayerDistanceSlider"
                                     Width="300"
                                     Margin="0,0,8,0"
@@ -207,21 +207,21 @@
                                       SelectedItem="{Binding EspLabelPositionAI, Mode=TwoWay}"
                                       ToolTip="选择 AI/拾荒者 标签相对于包围盒的位置。"/>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="AI/拾荒者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="AI/拾荒者颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorAI, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="玩家拾荒者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="玩家拾荒者颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorPlayerScavs, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
                                                   ShowRecentColors="False"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="掠夺者 颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="掠夺者颜色：" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <xctk:ColorPicker Width="42" Height="26"
                                                   SelectedColor="{Binding EspColorRaiders, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}"
                                                   UsingAlphaChannel="True"
@@ -236,7 +236,7 @@
                             </StackPanel>
                          </WrapPanel>
                          <WrapPanel Margin="0,4,0,0">
-                            <TextBlock Text="最大距离 (0 = 无限)：" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="最大距离（0 = 无限）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="AIDistanceSlider"
                                     Width="300"
                                     Margin="0,0,8,0"
@@ -384,7 +384,7 @@
                                    Margin="8,0,0,0" />
                     </WrapPanel>
                     <WrapPanel Margin="0,4,0,0">
-                        <TextBlock Text="最大距离 (0 = 无限)：" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="最大距离（0 = 无限）：" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <Slider x:Name="LootDistanceSlider"
                                 Width="200"
                                 Margin="0,0,8,0"
@@ -452,7 +452,7 @@
                         <TextBox Width="50" Text="{Binding MiniRadarScreenX, Mode=TwoWay}" ToolTip="-1 = 自动（右）"/>
                         <TextBlock Text="Y" VerticalAlignment="Center" Margin="8,0,4,0"/>
                         <TextBox Width="50" Text="{Binding MiniRadarScreenY, Mode=TwoWay}"/>
-                        <TextBlock Text="(-1 X = 自动 右上)" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="Gray" FontSize="10"/>
+                        <TextBlock Text="（X = -1 时自动靠右上）" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="Gray" FontSize="10"/>
                     </WrapPanel>
                     
                     <WrapPanel Margin="0,0,0,8" IsEnabled="{Binding MiniRadarEnabled}">
